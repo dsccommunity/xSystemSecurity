@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/u3h1665qqneo98bh/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xsystemsecurity/branch/master)
+﻿[![Build status](https://ci.appveyor.com/api/projects/status/u3h1665qqneo98bh/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xsystemsecurity/branch/master)
 
 # xSystemSecurity
 
@@ -61,6 +61,10 @@ Please refer to [this article](http://technet.microsoft.com/en-us/library/dd8832
 
 
 ## Versions
+
+### 1.1.0.0
+
+* Fixed encoding
 
 ### 1.0.0.0
 
