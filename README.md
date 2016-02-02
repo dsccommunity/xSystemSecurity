@@ -62,6 +62,8 @@ Please refer to [this article](http://technet.microsoft.com/en-us/library/dd8832
 
 ## Versions
 
+### Versions
+
 ### 1.1.0.0
 
 * Fixed encoding
