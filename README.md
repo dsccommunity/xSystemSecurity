@@ -1,8 +1,11 @@
-Ôªø[![Build status](https://ci.appveyor.com/api/projects/status/u3h1665qqneo98bh/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xsystemsecurity/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/u3h1665qqneo98bh/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xsystemsecurity/branch/master)
 
 # xSystemSecurity
 
 The **xSystemSecurity** module contains the **xUAC** and **xIEEsc** DSC resources for configuring and managing UAC and IE Enhanced Security Configuration. 
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 ## Contributing
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
@@ -47,10 +50,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     If you are logged on as a standard user, any changes that require the permissions of an administrator will automatically be denied.
     If you select this setting, you will need to restart the computer to complete the process of turning off UAC. 
     Once UAC is off, people that log on as administrator will always have the permissions of an administrator.
-    This is the least secure setting same as ‚ÄúNeverNotify‚Äù, but in addition EnableLUA registry key is disabled.
+    This is the least secure setting same as ìNeverNotifyî, but in addition EnableLUA registry key is disabled.
     EnableLUA controls the behavior of all UAC policy settings for the computer. 
     If you change this policy setting, you must restart your computer
-    We do not recommend using this setting, but it can be selected for systems that use programs that are not certified for Windows¬Æ 8, Windows Server¬Æ 2012, Windows¬Æ 7 or Windows Server¬Æ 2008 R2 because they do not support UAC.
+    We do not recommend using this setting, but it can be selected for systems that use programs that are not certified for WindowsÆ 8, Windows ServerÆ 2012, WindowsÆ 7 or Windows ServerÆ 2008 R2 because they do not support UAC.
 
 ### xIEEsc
 
