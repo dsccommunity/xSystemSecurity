@@ -65,7 +65,8 @@ Please refer to [this article](http://technet.microsoft.com/en-us/library/dd8832
 
 ## Versions
 
-### Versions
+### Unreleased
+* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
 
 ### 1.1.0.0
 
