@@ -19,14 +19,9 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    Describe "$($script:DSCResourceName)_Integration" {
+    New-Item -Path "TestDrive:\SampleFolder"
 
-        BeforeAll {
-            New-Item -Path "TestDrive:\SampleFolder"
-        }
-        AfterAll {
-            Remove-Item "TestDrive:\SampleFolder"
-        }
+    Describe "$($script:DSCResourceName)_Integration" {
 
         It 'New rule - Should compile without throwing' {
             {
