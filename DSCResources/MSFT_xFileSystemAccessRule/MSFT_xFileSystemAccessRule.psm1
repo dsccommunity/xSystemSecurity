@@ -231,4 +231,4 @@ function Test-TargetResource
     return $true
 }
 
-Export-ModuleMember -Function *-TargetResoruce
+Export-ModuleMember -Function *-TargetResource
