@@ -1,5 +1,7 @@
 function Get-TargetResource
 {
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])] 
     param(
         [Parameter(Mandatory = $true)]
         [String]
@@ -73,6 +75,7 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
         [String]
@@ -157,6 +160,8 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    [CmdletBinding()]
+    [OutputType([System.Boolean])] 
     param(
         [Parameter(Mandatory = $true)]
         [String]
