@@ -19,7 +19,8 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    New-Item -Path "TestDrive:\SampleFolder"
+    Import-Module Pester
+    New-Item -Path "TestDrive:\SampleFolder" -ItemType Directory
 
     Describe "$($script:DSCResourceName)_Integration" {
 
