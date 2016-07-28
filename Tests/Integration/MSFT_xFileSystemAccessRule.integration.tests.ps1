@@ -19,8 +19,7 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    Import-Module Pester
-    New-Item -Path "TestDrive:\SampleFolder" -ItemType Directory
+    New-Item -Path "C:\SampleFolder" -ItemType Directory
 
     Describe "$($script:DSCResourceName)_Integration" {
 
@@ -88,6 +87,9 @@ try
         It 'New rule - Should have set the resource and all the parameters should match' {
             Test-DscConfiguration -Path $TestEnvironment.WorkingFolder | Should Be $true
         }
+
+
+        Remove-Item -Path "C:\SampleFolder" -Recurse -Force -Confirm:$false
     }
 }
 finally
