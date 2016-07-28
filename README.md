@@ -50,10 +50,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     If you are logged on as a standard user, any changes that require the permissions of an administrator will automatically be denied.
     If you select this setting, you will need to restart the computer to complete the process of turning off UAC. 
     Once UAC is off, people that log on as administrator will always have the permissions of an administrator.
-    This is the least secure setting same as �NeverNotify�, but in addition EnableLUA registry key is disabled.
+    This is the least secure setting same as "NeverNotify", but in addition EnableLUA registry key is disabled.
     EnableLUA controls the behavior of all UAC policy settings for the computer. 
     If you change this policy setting, you must restart your computer
-    We do not recommend using this setting, but it can be selected for systems that use programs that are not certified for Windows� 8, Windows Server� 2012, Windows� 7 or Windows Server� 2008 R2 because they do not support UAC.
+    We do not recommend using this setting, but it can be selected for systems that use programs that are not certified for Windows 8, Windows Server 2012, Windows 7 or Windows Server 2008 R2 because they do not support UAC.
 
 ### xIEEsc
 
