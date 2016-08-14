@@ -27,7 +27,7 @@ try
 
             Context "No permissions exist for a user, but should" {
                 $testParams = @{
-                    Path = "C:\TestFolder"
+                    Path = "$($env:SystemDrive)\TestFolder"
                     Identity = "NT AUTHORITY\NETWORK SERVICE"
                     Rights = @("Read","Synchronize")
                 }
@@ -54,7 +54,7 @@ try
 
             Context "A permission exists and should, but the rights are incorrect" {
                 $testParams = @{
-                    Path = "C:\TestFolder"
+                    Path = "$($env:SystemDrive)\TestFolder"
                     Identity = "NT AUTHORITY\NETWORK SERVICE"
                     Rights = @("Read","Synchronize")
                 }
@@ -86,7 +86,7 @@ try
 
             Context "A permission exists and should, including correct rights" {
                 $testParams = @{
-                    Path = "C:\TestFolder"
+                    Path = "$($env:SystemDrive)\TestFolder"
                     Identity = "NT AUTHORITY\NETWORK SERVICE"
                     Rights = @("Read","Synchronize")
                 }
@@ -113,7 +113,7 @@ try
 
             Context "A permission exists that shouldn't" {
                 $testParams = @{
-                    Path = "C:\TestFolder"
+                    Path = "$($env:SystemDrive)\TestFolder"
                     Identity = "NT AUTHORITY\NETWORK SERVICE"
                     Ensure = "Absent"
                 }
@@ -145,7 +145,7 @@ try
 
             Context "A permission doesn't exist and shouldn't" {
                 $testParams = @{
-                    Path = "C:\TestFolder"
+                    Path = "$($env:SystemDrive)\TestFolder"
                     Identity = "NT AUTHORITY\NETWORK SERVICE"
                     Ensure = "Absent"
                 }
@@ -169,7 +169,7 @@ try
 
             Context "A path doesn't exist" {
                 $testParams = @{
-                    Path = "C:\TestFolder"
+                    Path = "$($env:SystemDrive)\TestFolder"
                     Identity = "NT AUTHORITY\NETWORK SERVICE"
                     Rights = @("Read","Synchronize")
                 }
