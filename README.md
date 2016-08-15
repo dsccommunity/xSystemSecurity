@@ -155,7 +155,7 @@ Configuration DisableLocalIEEsc
 This configuration will grant the network service account full control over the directory.
 
 ```powershell
-Configuration DisableLocalIEEsc
+Configuration FullControlExample
 {
     Import-DSCResource -Module MSFT_xSystemSecurity
 
@@ -163,7 +163,7 @@ Configuration DisableLocalIEEsc
     {
         xFileSystemAccessRule FullControlExample
         {
-            Path = "C:\some\path"
+            Path = "$env:SystemDrive\some\path"
             Identity = "NT AUTHORITY\NETWORK SERVICE"
             Rights = @("FullControl")
         }

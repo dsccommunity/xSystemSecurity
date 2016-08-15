@@ -19,7 +19,7 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    New-Item -Path "C:\SampleFolder" -ItemType Directory
+    New-Item -Path "$env:SystemDrive\SampleFolder" -ItemType Directory
 
     Describe "$($script:DSCResourceName)_Integration" {
 
@@ -89,7 +89,7 @@ try
         }
 
 
-        Remove-Item -Path "C:\SampleFolder" -Recurse -Force -Confirm:$false
+        Remove-Item -Path "$env:SystemDrive\SampleFolder" -Recurse -Force -Confirm:$false
     }
 }
 finally
