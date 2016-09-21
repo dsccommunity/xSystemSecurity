@@ -1,8 +1,11 @@
-﻿[![Build status](https://ci.appveyor.com/api/projects/status/u3h1665qqneo98bh/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xsystemsecurity/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/u3h1665qqneo98bh/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xsystemsecurity/branch/master)
 
 # xSystemSecurity
 
 The **xSystemSecurity** module contains the **xUAC** and **xIEEsc** DSC resources for configuring and managing UAC and IE Enhanced Security Configuration. 
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 ## Contributing
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
@@ -47,20 +50,56 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     If you are logged on as a standard user, any changes that require the permissions of an administrator will automatically be denied.
     If you select this setting, you will need to restart the computer to complete the process of turning off UAC. 
     Once UAC is off, people that log on as administrator will always have the permissions of an administrator.
-    This is the least secure setting same as “NeverNotify”, but in addition EnableLUA registry key is disabled.
+    This is the least secure setting same as "NeverNotify", but in addition EnableLUA registry key is disabled.
     EnableLUA controls the behavior of all UAC policy settings for the computer. 
     If you change this policy setting, you must restart your computer
-    We do not recommend using this setting, but it can be selected for systems that use programs that are not certified for Windows® 8, Windows Server® 2012, Windows® 7 or Windows Server® 2008 R2 because they do not support UAC.
+    We do not recommend using this setting, but it can be selected for systems that use programs that are not certified for Windows 8, Windows Server 2012, Windows 7 or Windows Server 2008 R2 because they do not support UAC.
 
 ### xIEEsc
 
 * **UserRole**: Enable or Disable ESC for **Administrators** or **Users**.
 * **IsEnabled**: Determines if ESC is **Enabled** or **Disabled**.
 
+### xFileSystemAccessRule
+
+* **Path**: The path to the item that should have permissions set
+* **Identity**: The identity to set permissions for
+* **Rights**: The permissions to include in this rule, can be empty if ensure = absent. Should be a combination of the following:
+    * "ListDirectory"
+    * "ReadData"
+    * "WriteData"
+    * "CreateFiles"
+    * "CreateDirectories"
+    * "AppendData"
+    * "ReadExtendedAttributes"
+    * "WriteExtendedAttributes"
+    * "Traverse"
+    * "ExecuteFile"
+    * "DeleteSubdirectoriesAndFiles"
+    * "ReadAttributes"
+    * "WriteAttributes"
+    * "Write"
+    * "Delete"
+    * "ReadPermissions"
+    * "Read"
+    * "ReadAndExecute"
+    * "Modify"
+    * "ChangePermissions"
+    * "TakeOwnership"
+    * "Synchronize"
+    * "FullControl" 
+* **Ensure**: Present to create the rule, Absent to remove an existing rule
+
 Please refer to [this article](http://technet.microsoft.com/en-us/library/dd883248(v=ws.10).aspx) for the effects and security impact of Enhanced Security Configuration. 
 
 
 ## Versions
+
+### Unreleased
+
+### 1.2.0.0
+* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
+* Added xFileSystemAccessRule resource
 
 ### 1.1.0.0
 
@@ -108,6 +147,27 @@ Configuration DisableLocalIEEsc
         {
             IsEnabled = $false
             UserRole = "Users"
+        }
+    }
+}
+```
+
+### Sets a permission on a specific folder
+
+This configuration will grant the network service account full control over the directory.
+
+```powershell
+Configuration FullControlExample
+{
+    Import-DSCResource -Module MSFT_xSystemSecurity
+
+    Node localhost
+    {
+        xFileSystemAccessRule FullControlExample
+        {
+            Path = "$env:SystemDrive\some\path"
+            Identity = "NT AUTHORITY\NETWORK SERVICE"
+            Rights = @("FullControl")
         }
     }
 }
