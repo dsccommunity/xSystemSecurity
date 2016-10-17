@@ -20,7 +20,13 @@ Configuration xUac
             $ConsentPromptBehaviorAdmin = 2
             $EnableLua = 1
             $PromptOnSecureDesktop = 1
-        }    
+        }
+        "AlwaysNotifyAndAskForCredentials" 
+        {
+            $ConsentPromptBehaviorAdmin = 3
+            $EnableLua = 1
+            $PromptOnSecureDesktop = 1
+        }       
         "NotifyChanges" 
         {
             $ConsentPromptBehaviorAdmin = 5

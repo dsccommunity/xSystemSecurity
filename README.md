@@ -23,6 +23,9 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     When you're notified, your desktop will be dimmed, and you must either approve or deny the request in the UAC dialog box before you can do anything else on your computer. 
     The dimming of your desktop is referred to as the secure desktop because other programs can't run while it's dimmed.
     This is the most secure setting.
+    - **AlwaysNotifyAndAskForCredentials**: You will be notified before programs make changes to your computer or to Windows settings that require the permissions of an administrator.
+    When you're notified, your desktop will be dimmed, and you must enter valid credentials to approve the request in the UAC dialog box. 
+    This setting is the same as "AlwaysNotify" but you are always asked for valid credentials on the secure desktop.
     When you are notified, you should carefully read the contents of each dialog box before allowing changes to be made to your computer.
     - **NotifyChanges**: You will be notified before programs make changes to your computer that require the permissions of an administrator.
     You will not be notified if you try to make changes to Windows settings that require the permissions of an administrator.
