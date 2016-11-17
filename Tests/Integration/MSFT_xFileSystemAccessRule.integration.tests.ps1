@@ -25,13 +25,13 @@ try
 
         It 'New rule - Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_NewRule -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_NewRule -OutputPath `$TestDrive"
             } | Should not throw
         }
 
         It "New rule - Should apply without throwing" {
             {
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder `
+                Start-DscConfiguration -Path $TestDrive `
                     -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -41,19 +41,19 @@ try
         }
 
         It 'New rule - Should have set the resource and all the parameters should match' {
-            Test-DscConfiguration -Path $TestEnvironment.WorkingFolder | Should Be $true
+            Test-DscConfiguration -Path $TestDrive | Should Be $true
         }
 
 
         It 'Update rule - Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_UpdateRule -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_UpdateRule -OutputPath `$TestDrive"
             } | Should not throw
         }
 
         It "Update rule - Should apply without throwing" {
             {
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder `
+                Start-DscConfiguration -Path $TestDrive `
                     -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -64,18 +64,18 @@ try
         }
 
         It 'Remove rule - Should have set the resource and all the parameters should match' {
-            Test-DscConfiguration -Path $TestEnvironment.WorkingFolder | Should Be $true
+            Test-DscConfiguration -Path $TestDrive | Should Be $true
         }
 
         It 'Remove rule - Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveRule -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveRule -OutputPath `$TestDrive"
             } | Should not throw
         }
 
         It "Remove rule - Should apply without throwing" {
             {
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder `
+                Start-DscConfiguration -Path $TestDrive `
                     -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -85,7 +85,7 @@ try
         }
 
         It 'New rule - Should have set the resource and all the parameters should match' {
-            Test-DscConfiguration -Path $TestEnvironment.WorkingFolder | Should Be $true
+            Test-DscConfiguration -Path $TestDrive | Should Be $true
         }
 
 
