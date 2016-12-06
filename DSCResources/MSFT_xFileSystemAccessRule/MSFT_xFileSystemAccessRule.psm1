@@ -123,7 +123,7 @@ function Set-TargetResource
         throw "Unable to get ACL for '$Path' as it does not exist"
     }
 
-    $acl = Get-Acl -Path $Path
+    $acl = (Get-Item -Path $Path).GetAccessControl('Access')
     $accessRules = $acl.Access
 
     if ($Ensure -eq "Present")
