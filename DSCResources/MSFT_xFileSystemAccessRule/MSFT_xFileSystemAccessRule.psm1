@@ -123,7 +123,7 @@ function Set-TargetResource
         throw "Unable to get ACL for '$Path' as it does not exist"
     }
 
-    $acl = (Get-Item -Path $Path).GetAccessControl('Access')
+    $acl = Get-ACLAccess -Path $Path
     $accessRules = $acl.Access
 
     if ($Ensure -eq "Present")
@@ -229,6 +229,10 @@ function Test-TargetResource
     }
 
     return $true
+}
+ Function Get-ACLAccess($Path)
+{
+    return (Get-Item -Path $Path).GetAccessControl('Access')
 }
 
 Export-ModuleMember -Function *-TargetResource

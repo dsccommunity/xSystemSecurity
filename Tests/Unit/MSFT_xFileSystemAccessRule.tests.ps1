@@ -37,7 +37,7 @@ try
                     } | Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru `
                       | Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
                 }
-
+                
                 It "should return absent from the get method" {
                     (Get-TargetResource @testParams).Ensure | Should Be "Absent"
                 }
@@ -118,6 +118,18 @@ try
                     Ensure = "Absent"
                 }
                 Mock Get-Acl { 
+                    return @{
+                        Access = @(
+                            @{
+                                IdentityReference = $testParams.Identity
+                                FileSystemRights = [System.Security.AccessControl.FileSystemRights]::FullControl
+                            }
+                        )
+                    } | Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru `
+                      | Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
+                }
+
+                Mock Get-ACLAccess { 
                     return @{
                         Access = @(
                             @{
