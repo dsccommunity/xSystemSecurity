@@ -40,37 +40,79 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $false)]
         [String]
-        [ValidateSet("Present","Absent")]
-        $Ensure = "Present"
+        [ValidateSet('Present','Absent')]
+        $Ensure = 'Present'
     )
-    
-    if ((Test-Path -Path $Path) -eq $false)
-    {
-        throw "Unable to get ACL for '$Path' as it does not exist"
-    }
 
-    $acl = Get-Acl -Path $Path
-    $accessRules = $acl.Access
-
-    $identityRule = $accessRules | Where-Object -FilterScript {
-        $_.IdentityReference -eq $Identity
-    } | Select-Object -First 1
-
-    if ($null -eq $identityRule)
-    {
-        return @{
-            Path = $Path
-            Identity = $Identity
-            Rights = @()
-            Ensure = "Absent"
-        }
-    }
-    return @{
+    $result = @{
         Path = $Path
         Identity = $Identity
-        Rights = $identityRule.FileSystemRights.ToString() -split ", "
-        Ensure = "Present"
+        Rights = @()
+        Ensure = 'Present'
+        IsActiveNode = $true
     }
+    
+    if ( -not ( Test-Path -Path $Path ) )
+    {
+        $isClusterResource = $false
+
+        # Is the node a member of a WSFC?
+        $msCluster = Get-CimInstance -Namespace root/MSCluster -ClassName MSCluster_Cluster -ErrorAction SilentlyContinue
+
+        if ( $msCluster )
+        {
+            # Is the defined path built off of a known mount point in the cluster?
+            $clusterPartition = Get-CimInstance -Namespace root/MSCluster -ClassName MSCluster_ClusterDiskPartition | Where-Object -FilterScript {
+                $currentPartition = $_
+
+                $currentPartition.MountPoints | ForEach-Object -Process {
+                    [regex]::Escape($Path) -match "^$($_)"
+                }
+            }
+
+            # Get the possible owner nodes for the partition
+            [array]$possibleOwners = $clusterPartition |
+                Get-CimAssociatedInstance -ResultClassName 'MSCluster_Resource' |
+                    Get-CimAssociatedInstance -Association 'MSCluster_ResourceToPossibleOwner' | 
+                        Select-Object -ExpandProperty Name -Unique
+            
+            # Ensure the current node is a possible owner of the drive
+            if ( $possibleOwners -notcontains $env:COMPUTERNAME )
+            {
+                Write-Verbose -Message "'$($env:COMPUTERNAME)' is not a possible owner for '$Path'."
+            }
+            else
+            {
+                $isClusterResource = $true
+            }
+        }
+
+        if ( -not $isClusterResource )
+        {
+            throw "Unable to get ACL for '$Path' as it does not exist"
+        }
+        else
+        {
+            $result.IsActiveNode = $false
+        }
+    }
+    else
+    {
+        $acl = Get-Acl -Path $Path
+        $accessRules = $acl.Access
+
+        $identityRule = $accessRules | Select-Object -ExpandProperty FileSystemRights -Unique
+
+        if ($null -eq $identityRule)
+        {
+            $result.Ensure = 'Absent'
+        }
+        else
+        {
+            $result.Rights = $identityRule
+        }
+    }
+    return $result
 }
 
 function Set-TargetResource
@@ -115,7 +157,11 @@ function Set-TargetResource
         [Parameter(Mandatory = $false)]
         [String]
         [ValidateSet("Present","Absent")]
-        $Ensure = "Present"
+        $Ensure = "Present",
+
+        [Parameter()]
+        [Boolean]
+        $ProcessOnlyOnActiveNode
     )
 
     if ((Test-Path -Path $Path) -eq $false)
@@ -201,17 +247,31 @@ function Test-TargetResource
         [Parameter(Mandatory = $false)]
         [String]
         [ValidateSet("Present","Absent")]
-        $Ensure = "Present"
+        $Ensure = "Present",
+        
+        [Parameter()]
+        [Boolean]
+        $ProcessOnlyOnActiveNode
     )
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
+    $currentValues = Get-TargetResource @PSBoundParameters
 
-    if ($null -eq $CurrentValues) 
+    <#
+        If this is supposed to process on the active node, and this is not the
+        active node, don't bother evaluating the test.
+    #>
+    if ( $ProcessOnlyOnActiveNode -and -not $currentValues.IsActiveNode )
+    {
+        Write-Verbose -Message ( 'The node "{0}" is not actively hosting the path "{1}". Exiting the test.' -f $env:COMPUTERNAME,$Path )
+        return $true
+    }
+
+    if ($null -eq $currentValues) 
     {
         throw "Unable to determine current ACL values for '$Path'"
     }
 
-    if ($CurrentValues.Ensure -ne $Ensure)
+    if ($currentValues.Ensure -ne $Ensure)
     {
         Write-Verbose -Message "Ensure property does not match"
         return $false
@@ -219,8 +279,7 @@ function Test-TargetResource
 
     if ($Ensure -eq "Present")
     {
-        $rightsCompare = Compare-Object -ReferenceObject $CurrentValues.Rights `
-                                        -DifferenceObject $Rights
+        $rightsCompare = Compare-Object -ReferenceObject $currentValues.Rights -DifferenceObject $Rights
         if ($null -ne $rightsCompare)
         {
             Write-Verbose -Message "Rights property does not match"
