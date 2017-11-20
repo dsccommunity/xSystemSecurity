@@ -62,36 +62,37 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### xFileSystemAccessRule
 
-* **Path**: The path to the item that should have permissions set
-* **Identity**: The identity to set permissions for
-* **Rights**: The permissions to include in this rule, can be empty if ensure = absent. Should be a combination of the following:
-    * "ListDirectory"
-    * "ReadData"
-    * "WriteData"
-    * "CreateFiles"
-    * "CreateDirectories"
-    * "AppendData"
-    * "ReadExtendedAttributes"
-    * "WriteExtendedAttributes"
-    * "Traverse"
-    * "ExecuteFile"
-    * "DeleteSubdirectoriesAndFiles"
-    * "ReadAttributes"
-    * "WriteAttributes"
-    * "Write"
-    * "Delete"
-    * "ReadPermissions"
-    * "Read"
-    * "ReadAndExecute"
-    * "Modify"
-    * "ChangePermissions"
-    * "TakeOwnership"
-    * "Synchronize"
-    * "FullControl" 
-* **Ensure**: Present to create the rule, Absent to remove an existing rule
+* **`[String]` Path** _(Key)_: The path to the item that should have permissions set
+* **`[String]` Identity** _(Key)_: The identity to set permissions for
+* **`[String[]]` Rights** _(Write)_: The permissions to include in this rule, can be empty if ensure = absent. Should be a combination of the following:
+  * "ListDirectory"
+  * "ReadData"
+  * "WriteData"
+  * "CreateFiles"
+  * "CreateDirectories"
+  * "AppendData"
+  * "ReadExtendedAttributes"
+  * "WriteExtendedAttributes"
+  * "Traverse"
+  * "ExecuteFile"
+  * "DeleteSubdirectoriesAndFiles"
+  * "ReadAttributes"
+  * "WriteAttributes"
+  * "Write"
+  * "Delete"
+  * "ReadPermissions"
+  * "Read"
+  * "ReadAndExecute"
+  * "Modify"
+  * "ChangePermissions"
+  * "TakeOwnership"
+  * "Synchronize"
+  * "FullControl"
+* **`[String]` Ensure** _(Write)_: Present to create the rule, Absent to remove an existing rule
+* **`[Boolean]` ProcessOnlyOnActiveNode** _(Write)_: Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object.
+* **`[Boolean]` IsActiveNode** _(Read)_: Determines if the current node is actively hosting the filesystem object.
 
 Please refer to [this article](http://technet.microsoft.com/en-us/library/dd883248(v=ws.10).aspx) for the effects and security impact of Enhanced Security Configuration. 
-
 
 ## Versions
 

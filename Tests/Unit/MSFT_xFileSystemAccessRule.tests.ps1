@@ -1,5 +1,5 @@
-$script:DSCModuleName      = 'xSystemSecurity'
-$script:DSCResourceName    = 'MSFT_xFileSystemAccessRule' 
+$script:DSCModuleName = 'xSystemSecurity'
+$script:DSCResourceName = 'MSFT_xFileSystemAccessRule' 
 
 [String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
@@ -68,13 +68,13 @@ try
                 Mock Get-Acl { 
                     return @{
                         Access = @(
-                            @{
-                                IdentityReference = $testParams.Identity
-                                FileSystemRights = [System.Security.AccessControl.FileSystemRights]::FullControl
-                            }
+                            New-Object -TypeName PsObject |
+                                Add-Member -MemberType NoteProperty -Name IdentityReference -Value $testParams.Identity -PassThru |
+                                Add-Member -MemberType NoteProperty -Name FileSystemRights -Value [System.Security.AccessControl.FileSystemRights]::FullControl -PassThru
                         )
-                    } | Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru `
-                      | Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
+                    } | 
+                    Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
+                    Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
                 }
 
                  Mock Get-ACLAccess { 
@@ -109,16 +109,17 @@ try
                     Identity = "NT AUTHORITY\NETWORK SERVICE"
                     Rights = @("Read","Synchronize")
                 }
+
                 Mock Get-Acl { 
                     return @{
                         Access = @(
-                            @{
-                                IdentityReference = $testParams.Identity
-                                FileSystemRights = [System.Security.AccessControl.FileSystemRights]$testParams.Rights
-                            }
+                            New-Object -TypeName PsObject |
+                                Add-Member -MemberType NoteProperty -Name IdentityReference -Value $testParams.Identity -PassThru |
+                                Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $testParams.Rights -PassThru
                         )
-                    } | Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru `
-                      | Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
+                    } | 
+                    Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
+                    Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
                 }
 
                 It "should return present from the get method" {
@@ -136,16 +137,17 @@ try
                     Identity = "NT AUTHORITY\NETWORK SERVICE"
                     Ensure = "Absent"
                 }
+
                 Mock Get-Acl { 
                     return @{
                         Access = @(
-                            @{
-                                IdentityReference = $testParams.Identity
-                                FileSystemRights = [System.Security.AccessControl.FileSystemRights]::FullControl
-                            }
+                            New-Object -TypeName PsObject |
+                                Add-Member -MemberType NoteProperty -Name IdentityReference -Value $testParams.Identity -PassThru |
+                                Add-Member -MemberType NoteProperty -Name FileSystemRights -Value [System.Security.AccessControl.FileSystemRights]::FullControl -PassThru
                         )
-                    } | Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru `
-                      | Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
+                    } | 
+                    Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
+                    Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
                 }
 
                 Mock Get-ACLAccess { 
