@@ -11,7 +11,7 @@ function Get-TargetResource
         [String]
         $Identity,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [String[]]
         [ValidateSet("ListDirectory",
                      "ReadData",
@@ -38,7 +38,7 @@ function Get-TargetResource
                      "FullControl")]
         $Rights,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [String]
         [ValidateSet('Present','Absent')]
         $Ensure = 'Present'
@@ -127,7 +127,7 @@ function Set-TargetResource
         [String]
         $Identity,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [String[]]
         [ValidateSet("ListDirectory",
                      "ReadData",
@@ -154,7 +154,7 @@ function Set-TargetResource
                      "FullControl")]
         $Rights,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [String]
         [ValidateSet("Present","Absent")]
         $Ensure = "Present",
@@ -217,7 +217,7 @@ function Test-TargetResource
         [String]
         $Identity,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [String[]]
         [ValidateSet("ListDirectory",
                      "ReadData",
@@ -244,7 +244,7 @@ function Test-TargetResource
                      "FullControl")]
         $Rights,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [String]
         [ValidateSet("Present","Absent")]
         $Ensure = "Present",
