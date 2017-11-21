@@ -113,7 +113,7 @@ function Set-TargetResource
                      'TakeOwnership',
                      'Synchronize',
                      'FullControl')]
-        $Rights,
+        $Rights = @(),
 
         [Parameter()]
         [String]
@@ -207,7 +207,7 @@ function Test-TargetResource
                      'TakeOwnership',
                      'Synchronize',
                      'FullControl')]
-        $Rights,
+        $Rights = @(),
 
         [Parameter()]
         [String]
