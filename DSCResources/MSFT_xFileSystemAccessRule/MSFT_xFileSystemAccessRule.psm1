@@ -1,3 +1,13 @@
+<#
+    .SYNOPSIS
+        Gets the rights of the specified filesystem object for the specified identity.
+
+    .PARAMETER Path
+        The path to the item that should have permissions set.
+
+    .PARAMETER Identity
+        The identity to set permissions for.
+#>
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -78,6 +88,26 @@ function Get-TargetResource
     return $result
 }
 
+<#
+    .SYNOPSIS
+        Sets the rights of the specified filesystem object for the specified identity.
+
+    .PARAMETER Path
+        The path to the item that should have permissions set.
+
+    .PARAMETER Identity
+        The identity to set permissions for.
+    
+    .PARAMETER Rights
+        The permissions to include in this rule, can be empty if ensure = absent.
+
+    .PARAMETER Ensure
+        Present to create the rule, Absent to remove an existing rule.
+
+    .PARAMETER ProcessOnlyOnActiveNode
+        Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object.
+        Not used in Set-TargetResource.
+#>
 function Set-TargetResource
 {
     [CmdletBinding()]
@@ -174,7 +204,25 @@ function Set-TargetResource
     }
 }
 
-function Test-TargetResource
+<#
+    .SYNOPSIS
+        Tests the rights of the specified filesystem object for the specified identity.
+
+    .PARAMETER Path
+        The path to the item that should have permissions set.
+
+    .PARAMETER Identity
+        The identity to set permissions for.
+    
+    .PARAMETER Rights
+        The permissions to include in this rule, can be empty if ensure = absent.
+
+    .PARAMETER Ensure
+        Present to create the rule, Absent to remove an existing rule.
+
+    .PARAMETER ProcessOnlyOnActiveNode
+        Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object.
+#>function Test-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Boolean])] 
