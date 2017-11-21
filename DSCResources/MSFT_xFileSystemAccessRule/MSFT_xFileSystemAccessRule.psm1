@@ -81,7 +81,8 @@
 function Set-TargetResource
 {
     [CmdletBinding()]
-    param(
+    param
+    (
         [Parameter(Mandatory = $true)]
         [String]
         $Path,
@@ -91,35 +92,37 @@ function Set-TargetResource
         $Identity,
 
         [Parameter()]
+        [ValidateSet(
+            'ListDirectory',
+            'ReadData',
+            'WriteData',
+            'CreateFiles',
+            'CreateDirectories',
+            'AppendData',
+            'ReadExtendedAttributes',
+            'WriteExtendedAttributes',
+            'Traverse',
+            'ExecuteFile',
+            'DeleteSubdirectoriesAndFiles',
+            'ReadAttributes',
+            'WriteAttributes',
+            'Write',
+            'Delete',
+            'ReadPermissions',
+            'Read',
+            'ReadAndExecute',
+            'Modify',
+            'ChangePermissions',
+            'TakeOwnership',
+            'Synchronize',
+            'FullControl'
+        )]
         [String[]]
-        [ValidateSet('ListDirectory',
-                     'ReadData',
-                     'WriteData',
-                     'CreateFiles',
-                     'CreateDirectories',
-                     'AppendData',
-                     'ReadExtendedAttributes',
-                     'WriteExtendedAttributes',
-                     'Traverse',
-                     'ExecuteFile',
-                     'DeleteSubdirectoriesAndFiles',
-                     'ReadAttributes',
-                     'WriteAttributes',
-                     'Write',
-                     'Delete',
-                     'ReadPermissions',
-                     'Read',
-                     'ReadAndExecute',
-                     'Modify',
-                     'ChangePermissions',
-                     'TakeOwnership',
-                     'Synchronize',
-                     'FullControl')]
         $Rights = @(),
 
         [Parameter()]
-        [String]
         [ValidateSet('Present','Absent')]
+        [String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -175,7 +178,8 @@ function Test-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Boolean])] 
-    param(
+    param
+    (
         [Parameter(Mandatory = $true)]
         [String]
         $Path,
@@ -185,35 +189,37 @@ function Test-TargetResource
         $Identity,
 
         [Parameter()]
+        [ValidateSet(
+            'ListDirectory',
+            'ReadData',
+            'WriteData',
+            'CreateFiles',
+            'CreateDirectories',
+            'AppendData',
+            'ReadExtendedAttributes',
+            'WriteExtendedAttributes',
+            'Traverse',
+            'ExecuteFile',
+            'DeleteSubdirectoriesAndFiles',
+            'ReadAttributes',
+            'WriteAttributes',
+            'Write',
+            'Delete',
+            'ReadPermissions',
+            'Read',
+            'ReadAndExecute',
+            'Modify',
+            'ChangePermissions',
+            'TakeOwnership',
+            'Synchronize',
+            'FullControl'
+        )]
         [String[]]
-        [ValidateSet('ListDirectory',
-                     'ReadData',
-                     'WriteData',
-                     'CreateFiles',
-                     'CreateDirectories',
-                     'AppendData',
-                     'ReadExtendedAttributes',
-                     'WriteExtendedAttributes',
-                     'Traverse',
-                     'ExecuteFile',
-                     'DeleteSubdirectoriesAndFiles',
-                     'ReadAttributes',
-                     'WriteAttributes',
-                     'Write',
-                     'Delete',
-                     'ReadPermissions',
-                     'Read',
-                     'ReadAndExecute',
-                     'Modify',
-                     'ChangePermissions',
-                     'TakeOwnership',
-                     'Synchronize',
-                     'FullControl')]
         $Rights = @(),
 
         [Parameter()]
-        [String]
         [ValidateSet('Present','Absent')]
+        [String]
         $Ensure = 'Present',
         
         [Parameter()]
