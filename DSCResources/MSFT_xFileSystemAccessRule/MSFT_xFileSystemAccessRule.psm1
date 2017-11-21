@@ -69,9 +69,11 @@ function Get-TargetResource
         $acl = Get-Acl -Path $Path
         $accessRules = $acl.Access
 
-        [array]$result.Rights = $accessRules |
-            Where-Object -FilterScript { $_.IdentityReference -eq $Identity } |
-            Select-Object -ExpandProperty FileSystemRights -Unique
+        $result.Rights = @(
+            $accessRules |
+                Where-Object -FilterScript { $_.IdentityReference -eq $Identity } |
+                Select-Object -ExpandProperty FileSystemRights -Unique
+        )
     }
     return $result
 }
