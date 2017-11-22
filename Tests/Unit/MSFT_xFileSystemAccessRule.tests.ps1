@@ -90,6 +90,20 @@ try
             )
         }
 
+        $mockGetItem = {
+            return New-Object -TypeName PsObject |
+            Add-Member -MemberType ScriptMethod -Name GetAccessControl -Value {
+                return New-Object -TypeName PsObject |
+                Add-Member -MemberType NoteProperty -Name Access -Value @(
+                    New-Object -TypeName PsObject |
+                        Add-Member -MemberType NoteProperty -Name IdentityReference -Value $mockIdentity -PassThru |
+                        Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRights -PassThru
+                ) -PassThru | 
+                Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
+                Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
+            } -PassThru
+        }
+
         $mockTestPath = {
             return $mockTestPathResult
         }
@@ -332,7 +346,7 @@ try
 
         Describe 'MSFT_xFileSystemAccessRule\Set-TargetResource' -Tag Set {
             BeforeAll {
-                Mock -CommandName Get-Acl -MockWith $mockGetAcl -Verifiable
+                Mock -CommandName Get-Item -MockWith $mockGetItem -Verifiable
                 Mock -CommandName Set-Acl -MockWith {} -Verifiable
                 Mock -CommandName Test-Path -MockWith $mockTestPath -Verifiable
             }
@@ -362,7 +376,7 @@ try
 
                     { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
 
-                    Assert-MockCalled -CommandName Get-Acl -Times 1 -Exactly -Scope It
+                    Assert-MockCalled -CommandName Get-Item -Times 1 -Exactly -Scope It
                     Assert-MockCalled -CommandName Set-Acl -Times 1 -Exactly -Scope It
                     Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
                 }
@@ -389,7 +403,7 @@ try
 
                     { Set-TargetResource @setTargetResourceParameters } | Should -Throw "The path '$Path' does not exist"
 
-                    Assert-MockCalled -CommandName Get-Acl -Times 0 -Exactly -Scope It
+                    Assert-MockCalled -CommandName Get-Item -Times 0 -Exactly -Scope It
                     Assert-MockCalled -CommandName Set-Acl -Times 0 -Exactly -Scope It
                     Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
                 }
@@ -416,7 +430,7 @@ try
 
                     { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
 
-                    Assert-MockCalled -CommandName Get-Acl -Times 1 -Exactly -Scope It
+                    Assert-MockCalled -CommandName Get-Item -Times 1 -Exactly -Scope It
                     Assert-MockCalled -CommandName Set-Acl -Times 1 -Exactly -Scope It
                     Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
                 }
@@ -443,7 +457,7 @@ try
 
                     { Set-TargetResource @setTargetResourceParameters } | Should -Throw "The path '$Path' does not exist"
 
-                    Assert-MockCalled -CommandName Get-Acl -Times 0 -Exactly -Scope It
+                    Assert-MockCalled -CommandName Get-Item -Times 0 -Exactly -Scope It
                     Assert-MockCalled -CommandName Set-Acl -Times 0 -Exactly -Scope It
                     Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
                 }
@@ -553,6 +567,23 @@ try
                     Assert-MockCalled -CommandName Get-CimInstance -Times $assertMockCalledGetCimInstance -Exactly -Scope It -ParameterFilter { $ClassName -eq 'MSCluster_Cluster' }
                     Assert-MockCalled -CommandName Get-CimInstance -Times $assertMockCalledGetCimInstance -Exactly -Scope It -ParameterFilter { $ClassName -eq 'MSCluster_ClusterDiskPartition' }
                     Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
+                }
+            }
+        }
+
+        Describe 'MSFT_xFileSystemAccessRule\Get-AclAccess' -Tag Helper {
+            BeforeAll {
+                Mock -CommandName Get-Item -MockWith $mockGetItem -Verifiable
+            }
+
+            Context 'When the function is called' {
+                It 'Should return the ACL' {
+                    $result = Get-AclAccess -Path $mockPath
+
+                    $result.Access[0].IdentityReference | Should -Be $mockIdentity
+                    $result.Access[0].FileSystemRights | Should -Be $mockRights
+
+                    Assert-MockCalled -CommandName Get-Item -Times 1 -Exactly -Scope It
                 }
             }
         }

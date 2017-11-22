@@ -222,7 +222,8 @@ function Set-TargetResource
 
     .PARAMETER ProcessOnlyOnActiveNode
         Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object.
-#>function Test-TargetResource
+#>
+function Test-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Boolean])] 
@@ -321,9 +322,22 @@ function Set-TargetResource
 
     return $result
 }
- Function Get-ACLAccess($Path)
+
+<#
+    .SYNOPSIS
+        Retrieves the access control list from a filesystem object.
+
+    .PARAMETER Path
+        The path of the filesystem object to retrieve the ACL from.
+#>
+function Get-AclAccess
 {
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Path
+    )
+    
     return (Get-Item -Path $Path).GetAccessControl('Access')
 }
-
-Export-ModuleMember -Function *-TargetResource
