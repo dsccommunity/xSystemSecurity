@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Gets the rights of the specified filesystem object for the specified identity.
 
