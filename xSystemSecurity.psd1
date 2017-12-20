@@ -7,7 +7,7 @@
 @{
 
 # Version number of this module.
-ModuleVersion = '1.2.0.0'
+ModuleVersion = '1.3.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'e30107af-a22a-48fb-b7bc-7d2b98489ac5'
@@ -36,6 +36,9 @@ VariablesToExport = '*'
 # Aliases to export from this module
 AliasesToExport = '*'
 
+# Minimum version of the Windows PowerShell engine required by this module
+PowerShellVersion = '4.0'
+
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
 
@@ -54,8 +57,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
-* Added xFileSystemAccessRule resource
+        ReleaseNotes = '* Updated FileSystemACL Set
 
 '
 
@@ -63,5 +65,6 @@ PrivateData = @{
 
 } # End of PrivateData hashtable
 }
+
 
 

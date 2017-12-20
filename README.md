@@ -97,6 +97,10 @@ Please refer to [this article](http://technet.microsoft.com/en-us/library/dd8832
 
 ### Unreleased
 
+### 1.3.0.0
+
+* Updated FileSystemACL Set
+
 ### 1.2.0.0
 * Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
 * Added xFileSystemAccessRule resource
