@@ -231,6 +231,17 @@ try
                 ClusterNodes = $mockClusterNodes
             }
         )
+
+        $testTargetResourceTestCasesPresentError = @(
+            @{
+                Path = $mockPath
+                Identity = $mockIdentity
+                Ensure = 'Present'
+                ProcessOnlyOnActiveNode = $false
+                TestResult = $false
+                ClusterNodes = $mockClusterNodes
+            }
+        )
         #endregion Test Cases
 
         Describe 'MSFT_xFileSystemAccessRule\Get-TargetResource' -Tag Get {
@@ -460,6 +471,30 @@ try
                     Assert-MockCalled -CommandName Set-Acl -Times 0 -Exactly -Scope It
                     Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
                 }
+
+                It 'Should throw the correct error when the Rights parameter is not supplied' -TestCases $setTargetResourceTestCasesPresent {
+                    param
+                    (
+                        $Path,
+                        $Identity,
+                        $Rights,
+                        $Ensure,
+                        $ProcessOnlyOnActiveNode
+                    )
+                    
+                    $setTargetResourceParameters = @{
+                        Path = $Path
+                        Identity = $Identity
+                        Ensure = $Ensure
+                        ProcessOnlyOnActiveNode = $ProcessOnlyOnActiveNode
+                    }
+
+                    { Set-TargetResource @setTargetResourceParameters } | Should -Throw "No rights were specified for '$Identity' on '$Path'"
+
+                    Assert-MockCalled -CommandName Get-Item -Times 1 -Exactly -Scope It
+                    Assert-MockCalled -CommandName Set-Acl -Times 0 -Exactly -Scope It
+                    Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
+                }
             }
         }
 
@@ -567,6 +602,49 @@ try
                     Assert-MockCalled -CommandName Get-CimInstance -Times $assertMockCalledGetCimInstance -Exactly -Scope It -ParameterFilter { $ClassName -eq 'MSCluster_ClusterDiskPartition' }
                     Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
                 }
+
+                It 'Should throw the correct error when the Rights parameter is not supplied' -TestCases $testTargetResourceTestCasesPresentError {
+                    param
+                    (
+                        $Path,
+                        $Identity,
+                        $Ensure,
+                        $ProcessOnlyOnActiveNode,
+                        $TestResult,
+                        $ClusterNodes
+                    )
+
+                    if ( $ProcessOnlyOnActiveNode )
+                    {
+                        $mockTestPathResult = $false
+                        $assertMockCalledGetAcl = 0
+                        $assertMockCalledGetCimAssociatedInstance = 1
+                        $assertMockCalledGetCimInstance = 1
+                    }
+                    else
+                    {
+                        $assertMockCalledGetAcl = 1
+                        $assertMockCalledGetCimAssociatedInstance = 0
+                        $assertMockCalledGetCimInstance = 0
+                    }
+
+                    $testTargetResourceParameters = @{
+                        Path = $Path
+                        Identity = $Identity
+                        Ensure = $Ensure
+                        ProcessOnlyOnActiveNode = $ProcessOnlyOnActiveNode
+                    }
+                    
+                    { Test-TargetResource @testTargetResourceParameters } | Should -Throw "No rights were specified for '$Identity' on '$Path'"
+
+                    Assert-MockCalled -CommandName Get-Acl -Times $assertMockCalledGetAcl -Exactly -Scope It
+                    Assert-MockCalled -CommandName Get-CimAssociatedInstance -Times $assertMockCalledGetCimAssociatedInstance -Exactly -Scope It -ParameterFilter { $ResultClassName -eq 'MSCluster_Resource' }
+                    Assert-MockCalled -CommandName Get-CimAssociatedInstance -Times $assertMockCalledGetCimAssociatedInstance -Exactly -Scope It -ParameterFilter { $Association -eq 'MSCluster_ResourceToPossibleOwner' }
+                    Assert-MockCalled -CommandName Get-CimInstance -Times $assertMockCalledGetCimInstance -Exactly -Scope It -ParameterFilter { $ClassName -eq 'MSCluster_Cluster' }
+                    Assert-MockCalled -CommandName Get-CimInstance -Times $assertMockCalledGetCimInstance -Exactly -Scope It -ParameterFilter { $ClassName -eq 'MSCluster_ClusterDiskPartition' }
+                    Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
+                }
+
             }
         }
 
