@@ -10,7 +10,6 @@ if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCR
 
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 
-# TODO: Insert the correct <ModuleName> and <ResourceName> for your resource
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName 'xSystemSecurity' `
     -DSCResourceName 'MSFT_xFileSystemAccessRule' `
