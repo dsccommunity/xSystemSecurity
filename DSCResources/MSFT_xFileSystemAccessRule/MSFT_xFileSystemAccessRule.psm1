@@ -26,7 +26,7 @@ function Get-TargetResource
     $result = @{
         Path = $Path
         Identity = $Identity
-        Rights = @()
+        Rights = [System.Security.AccessControl.FileSystemAccessRule[]]@()
         IsActiveNode = $true
     }
     
@@ -39,7 +39,7 @@ function Get-TargetResource
 
         if ( $msCluster )
         {
-            Write-Verbose -Message "$($env:COMPUTERNAME) is a member of the Windows Server Failover Cluster '$($msCluster.Name)'" -Verbose
+            Write-Verbose -Message "$($env:COMPUTERNAME) is a member of the Windows Server Failover Cluster '$($msCluster.Name)'"
             
             # Is the defined path built off of a known mount point in the cluster?
             $clusterPartition = Get-CimInstance -Namespace root/MSCluster -ClassName MSCluster_ClusterDiskPartition |
@@ -65,7 +65,7 @@ function Get-TargetResource
             }
             else
             {
-                Write-Verbose -Message "'$($env:COMPUTERNAME)' is not a possible owner for '$Path'." -Verbose
+                Write-Verbose -Message "'$($env:COMPUTERNAME)' is not a possible owner for '$Path'."
             }
         }
 
@@ -79,7 +79,7 @@ function Get-TargetResource
         $acl = Get-Acl -Path $Path
         $accessRules = $acl.Access
 
-        $result.Rights = @(
+        $result.Rights = [System.Security.AccessControl.FileSystemAccessRule[]]@(
             $accessRules |
                 Where-Object -FilterScript { $_.IdentityReference -eq $Identity } |
                 Select-Object -ExpandProperty FileSystemRights -Unique
@@ -99,13 +99,13 @@ function Get-TargetResource
         The identity to set permissions for.
     
     .PARAMETER Rights
-        The permissions to include in this rule, can be empty if ensure = absent.
+        The permissions to include in this rule. Optional if Ensure is set to value 'Absent'.
 
     .PARAMETER Ensure
-        Present to create the rule, Absent to remove an existing rule.
+        Present to create the rule, Absent to remove an existing rule. Default value is 'Present'.
 
     .PARAMETER ProcessOnlyOnActiveNode
-        Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object.
+        Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. the user the configuration is run as must haver permission to the Windows Server Failover Cluster.
         Not used in Set-TargetResource.
 #>
 function Set-TargetResource
@@ -148,7 +148,7 @@ function Set-TargetResource
             'FullControl'
         )]
         [String[]]
-        $Rights = @(),
+        $Rights,
 
         [Parameter()]
         [ValidateSet('Present','Absent')]
@@ -170,7 +170,13 @@ function Set-TargetResource
 
     if ( $Ensure -eq 'Present' )
     {
-        Write-Verbose -Message "Setting access rules for '$Identity' on '$Path'" -Verbose
+        # Validate the rights parameter was passed
+        if ( -not $PSBoundParameters.ContainsKey('Rights') )
+        {
+            throw "No rights were specified for '$Identity' on '$Path'"
+        }
+        
+        Write-Verbose -Message "Setting access rules for '$Identity' on '$Path'"
 
         $newFileSystemAccessRuleParameters = @{
             TypeName = 'System.Security.AccessControl.FileSystemAccessRule'
@@ -197,7 +203,7 @@ function Set-TargetResource
 
         if ( $null -ne $identityRule )
         {
-            Write-Verbose -Message "Removing access rules for '$Identity' on '$Path'" -Verbose
+            Write-Verbose -Message "Removing access rules for '$Identity' on '$Path'"
             $acl.RemoveAccessRule($identityRule) | Out-Null
             Set-Acl -Path $Path -AclObject $acl
         }
@@ -264,7 +270,7 @@ function Test-TargetResource
             'FullControl'
         )]
         [String[]]
-        $Rights = @(),
+        $Rights,
 
         [Parameter()]
         [ValidateSet('Present','Absent')]
@@ -291,7 +297,7 @@ function Test-TargetResource
     #>
     if ( $ProcessOnlyOnActiveNode -and -not $currentValues.IsActiveNode )
     {
-        Write-Verbose -Message ( 'The node "{0}" is not actively hosting the path "{1}". Exiting the test.' -f $env:COMPUTERNAME,$Path ) -Verbose
+        Write-Verbose -Message ( 'The node "{0}" is not actively hosting the path "{1}". Exiting the test.' -f $env:COMPUTERNAME,$Path )
         return $result
     }
 
@@ -306,6 +312,12 @@ function Test-TargetResource
         
         'Present'
         {
+            # Validate the rights parameter was passed
+            if ( -not $PSBoundParameters.ContainsKey('Rights') )
+            {
+                throw "No rights were specified for '$Identity' on '$Path'"
+            }
+            
             # If the right is defined and missing, return it
             $comparisonResult = Compare-Object -ReferenceObject $Rights -DifferenceObject $currentValues.Rights |
                 Where-Object -FilterScript { $_.SideIndicator -eq '<=' } |
@@ -316,7 +328,7 @@ function Test-TargetResource
     # If results were found from the comparison
     if ( $comparisonResult.Count -gt 0 )
     {
-        Write-Verbose -Message ( 'The identity "{0}" has the rights "{1}".' -f $Identity,( $currentValues.Rights -join ', ' ) ) -Verbose
+        Write-Verbose -Message ( 'The identity "{0}" has the rights "{1}". The expected rights are "{2}".' -f $Identity,( $currentValues.Rights -join ', ' ),( $Rights -join ', ' ) )
         $result = $false
     }
 
