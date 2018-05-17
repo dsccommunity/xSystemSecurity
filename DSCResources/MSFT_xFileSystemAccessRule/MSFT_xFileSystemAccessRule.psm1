@@ -305,6 +305,13 @@ function Test-TargetResource
     {
         'Absent'
         {
+            # If no rights were passed
+            if ( -not $PSBoundParameters.ContainsKey('Rights') )
+            {
+                # Set rights to an empty array
+                $Rights = @()
+            }
+            
             # If the right is defined and currently set, return it
             $comparisonResult = Compare-Object -ReferenceObject $Rights -DifferenceObject $currentValues.Rights -ExcludeDifferent -IncludeEqual |
                 Select-Object -ExpandProperty InputObject

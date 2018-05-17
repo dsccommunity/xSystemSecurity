@@ -176,6 +176,15 @@ try
             @{
                 Path = $mockPath
                 Identity = $mockIdentity
+                Rights = $null
+                Ensure = 'Absent'
+                ProcessOnlyOnActiveNode = $false
+                TestResult = $true
+                ClusterNodes = $mockClusterNodes
+            }
+            @{
+                Path = $mockPath
+                Identity = $mockIdentity
                 Rights = @('FullControl')
                 Ensure = 'Absent'
                 ProcessOnlyOnActiveNode = $false
@@ -542,9 +551,13 @@ try
                     $testTargetResourceParameters = @{
                         Path = $Path
                         Identity = $Identity
-                        Rights = $Rights
                         Ensure = $Ensure
                         ProcessOnlyOnActiveNode = $ProcessOnlyOnActiveNode
+                    }
+
+                    if ( $Rights )
+                    {
+                        $testTargetResourceParameters.Add('Rights',$Rights)
                     }
                     
                     Test-TargetResource @testTargetResourceParameters | Should -Be $TestResult
