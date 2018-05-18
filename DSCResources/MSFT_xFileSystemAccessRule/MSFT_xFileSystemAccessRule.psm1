@@ -26,7 +26,7 @@ function Get-TargetResource
     $result = @{
         Path = $Path
         Identity = $Identity
-        Rights = [System.String[]]@()
+        Rights = [System.String[]] @()
         IsActiveNode = $true
     }
     
@@ -79,7 +79,7 @@ function Get-TargetResource
         $acl = Get-Acl -Path $Path
         $accessRules = $acl.Access
 
-        $result.Rights = [System.String[]]@(
+        $result.Rights = [System.String[]] @(
             $accessRules |
                 Where-Object -FilterScript { $_.IdentityReference -eq $Identity } |
                 Select-Object -ExpandProperty FileSystemRights -Unique
