@@ -105,7 +105,7 @@ function Get-TargetResource
         Present to create the rule, Absent to remove an existing rule. Default value is 'Present'.
 
     .PARAMETER ProcessOnlyOnActiveNode
-        Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. The user the configuration is run as must haver permission to the Windows Server Failover Cluster.
+        Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. The user the configuration is run as must have permission to the Windows Server Failover Cluster.
         Not used in Set-TargetResource.
 #>
 function Set-TargetResource
@@ -227,7 +227,7 @@ function Set-TargetResource
         Present to create the rule, Absent to remove an existing rule. Default value is 'Present'.
 
     .PARAMETER ProcessOnlyOnActiveNode
-        Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. The user the configuration is run as must haver permission to the Windows Server Failover Cluster.
+        Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. The user the configuration is run as must have permission to the Windows Server Failover Cluster.
 #>
 function Test-TargetResource
 {
