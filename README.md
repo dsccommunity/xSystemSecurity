@@ -36,7 +36,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **`[String]` Identity** _(Key)_: The identity to set permissions for
 * **`[String[]]` Rights** _(Write)_: The permissions to include in this rule. Optional if Ensure is set to value 'Absent'. { ListDirectory | ReadData | WriteData | CreateFiles | CreateDirectories | AppendData | ReadExtendedAttributes | WriteExtendedAttributes | Traverse | ExecuteFile | DeleteSubdirectoriesAndFiles | ReadAttributes | WriteAttributes | Write | Delete | ReadPermissions | Read | ReadAndExecute | Modify | ChangePermissions | TakeOwnership | Synchronize | FullControl }
 * **`[String]` Ensure** _(Write)_: Present to create the rule, Absent to remove an existing rule. Default value is 'Present'. { *Present* | Absent }
-* **`[Boolean]` ProcessOnlyOnActiveNode** _(Write)_: Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. the user the configuration is run as must haver permission to the Windows Server Failover Cluster.
+* **`[Boolean]` ProcessOnlyOnActiveNode** _(Write)_: Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. The user the configuration is run as must have permission to the Windows Server Failover Cluster.
 * **`[Boolean]` IsActiveNode** _(Read)_: Determines if the current node is actively hosting the filesystem object. This will always return $true if ProcessOnlyOnActiveNode is not set or the value of ProcessOnlyOnActiveNode is set to $false.
 
 Please refer to [this article](http://technet.microsoft.com/en-us/library/dd883248(v=ws.10).aspx) for the effects and security impact of Enhanced Security Configuration.
@@ -46,7 +46,7 @@ Please refer to [this article](http://technet.microsoft.com/en-us/library/dd8832
 ### Unreleased
 
 * Changes to xFileSystemAccessRule
-  * [Dan Reist (@randomnote1)](https://github.com/randomnote1): Fixed issue when cluster shared disk is not present on the server. ([issue #16](https://github.com/PowerShell/xSystemSecurity/issues/16))
+  * Fixed issue when cluster shared disk is not present on the server ([issue #16](https://github.com/PowerShell/xSystemSecurity/issues/16)). [Dan Reist (@randomnote1)](https://github.com/randomnote1)
 
 ### 1.3.0.0
 
