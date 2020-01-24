@@ -1,10 +1,8 @@
-﻿<#
+<#
     .SYNOPSIS
         Gets the rights of the specified filesystem object for the specified identity.
-
     .PARAMETER Path
         The path to the item that should have permissions set.
-
     .PARAMETER Identity
         The identity to set permissions for.
 #>
@@ -26,7 +24,7 @@ function Get-TargetResource
     $result = @{
         Path = $Path
         Identity = $Identity
-        Rights = [System.String[]] @()
+        Rights = $null
         IsActiveNode = $true
     }
     
@@ -79,11 +77,14 @@ function Get-TargetResource
         $acl = Get-Acl -Path $Path
         $accessRules = $acl.Access
 
-        $result.Rights = [System.String[]] @(
-            $accessRules |
-                Where-Object -FilterScript { $_.IdentityReference -eq $Identity } |
-                Select-Object -ExpandProperty FileSystemRights -Unique
-        )
+        $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity }
+        if ( $matchingRules )
+        {
+            # Not sure if array here is still needed. Can there be multiple ACLs for the same identity?? If not this can go away.
+            $result.Rights = [System.Security.AccessControl.FileSystemRights] @(
+                $matchingRules | Select-Object -ExpandProperty FileSystemRights -Unique
+            )
+        }
     }
     return $result
 }
@@ -91,19 +92,15 @@ function Get-TargetResource
 <#
     .SYNOPSIS
         Sets the rights of the specified filesystem object for the specified identity.
-
     .PARAMETER Path
         The path to the item that should have permissions set.
-
     .PARAMETER Identity
         The identity to set permissions for.
     
     .PARAMETER Rights
         The permissions to include in this rule. Optional if Ensure is set to value 'Absent'.
-
     .PARAMETER Ensure
         Present to create the rule, Absent to remove an existing rule. Default value is 'Present'.
-
     .PARAMETER ProcessOnlyOnActiveNode
         Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. The user the configuration is run as must have permission to the Windows Server Failover Cluster.
         Not used in Set-TargetResource.
@@ -213,19 +210,15 @@ function Set-TargetResource
 <#
     .SYNOPSIS
         Tests the rights of the specified filesystem object for the specified identity.
-
     .PARAMETER Path
         The path to the item that should have permissions set.
-
     .PARAMETER Identity
         The identity to set permissions for.
     
     .PARAMETER Rights
         The permissions to include in this rule. Optional if Ensure is set to value 'Absent'.
-
     .PARAMETER Ensure
         Present to create the rule, Absent to remove an existing rule. Default value is 'Present'.
-
     .PARAMETER ProcessOnlyOnActiveNode
         Specifies that the resource will only determine if a change is needed if the target node is the active host of the filesystem object. The user the configuration is run as must have permission to the Windows Server Failover Cluster.
 #>
@@ -301,6 +294,7 @@ function Test-TargetResource
         return $result
     }
 
+
     switch ( $Ensure )
     {
         'Absent'
@@ -310,11 +304,39 @@ function Test-TargetResource
             {
                 # Set rights to an empty array
                 $Rights = @()
+            }                
+            if ( $currentValues.Rights -and (-not $Rights) )
+            {
+                $result = $false
+                Write-Verbose -Message ( 'Returning false. The identity "{0}" has the rights "{1}" when expected no rights by the Ensure Absent.' -f $Identity,( $currentValues.Rights -join ', ' ) )
             }
-            
-            # If the right is defined and currently set, return it
-            $comparisonResult = Compare-Object -ReferenceObject $Rights -DifferenceObject $currentValues.Rights -ExcludeDifferent -IncludeEqual |
-                Select-Object -ExpandProperty InputObject
+            elseif ( -not $currentValues.Rights )
+            {
+                $result = $true
+                Write-Verbose -Message ( 'Returning true. The identity "{0}" has no rights as expected by the Ensure Absent.' -f $Identity)
+            }
+            elseif ( $Rights ) # always hit, but just clarifying what the actual case is by filling in the if block
+            {
+                foreach ($right in $Rights) 
+                {
+                    $notAllowed = [System.Security.AccessControl.FileSystemRights]$right
+                
+                    # If any rights that we want to deny are individually a full subset of existing rights...
+                    $currentRightResult = -not ($notAllowed -eq ( $notAllowed -band $currentValues.Rights ) )
+                    
+                    if (-not $currentRightResult)
+                    {
+                        Write-Verbose -Message ( 'Testing right {0} absence: false. The identity "{1}" has the rights "{2}" which include "{0}", which are included in the desired Absent rights "{3}".' -f $notAllowed, $Identity,( $currentValues.Rights -join ', ' ), ($Rights -join ', ') )
+                    }
+                    else
+                    {
+                        Write-Verbose -Message ( 'Testing right {0} absence: true. The identity "{1}" has the rights "{2}" which do not contain "{0}".' -f $notAllowed, $Identity,( $currentValues.Rights -join ', ' ) )
+                    }
+
+                    $result = $result -and $currentRightResult
+                }
+                Write-Verbose -Message ( 'Returning {0} due to the above failures.' -f $result )
+            }
         }
         
         'Present'
@@ -324,20 +346,18 @@ function Test-TargetResource
             {
                 throw "No rights were specified for '$Identity' on '$Path'"
             }
-            
-            # If the right is defined and missing, return it
-            $comparisonResult = Compare-Object -ReferenceObject $Rights -DifferenceObject $currentValues.Rights |
-                Where-Object -FilterScript { $_.SideIndicator -eq '<=' } |
-                Select-Object -ExpandProperty InputObject
+            # This isn't always the same as the input, so pre-cast it. 
+            # For example [System.Security.AccessControl.FileSystemRights]@('Modify', 'Read', 'Write') is actually just 'Modify' within the flagged enum, so test as such to avoid false test failures.
+            $expected = [System.Security.AccessControl.FileSystemRights]$Rights 
+
+
+            # At minimum the AND result of the current and expected rights should be the expected rights (allow extra rights, but not missing). 
+            # Otherwise permission flags are missing from the enum.
+            $result = $expected -eq ($expected -band $currentValues.Rights)
+            Write-Verbose -Message ( 'Returning {0}. The identity "{1}" has the rights "{2}". The expected rights are "{3}" (combined from input Rights "{4}").' -f  $result, $Identity,( $currentValues.Rights -join ', ' ), $expected,( $Rights -join ', ' ) )
         }
     }
 
-    # If results were found from the comparison
-    if ( $comparisonResult.Count -gt 0 )
-    {
-        Write-Verbose -Message ( 'The identity "{0}" has the rights "{1}". The expected rights are "{2}".' -f $Identity,( $currentValues.Rights -join ', ' ),( $Rights -join ', ' ) )
-        $result = $false
-    }
 
     return $result
 }
@@ -345,7 +365,6 @@ function Test-TargetResource
 <#
     .SYNOPSIS
         Retrieves the access control list from a filesystem object.
-
     .PARAMETER Path
         The path of the filesystem object to retrieve the ACL from.
 #>
