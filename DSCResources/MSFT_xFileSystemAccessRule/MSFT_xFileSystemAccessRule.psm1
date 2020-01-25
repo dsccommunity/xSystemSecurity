@@ -24,7 +24,7 @@ function Get-TargetResource
     $result = @{
         Path = $Path
         Identity = $Identity
-        Rights = $null
+        Rights = [System.string[]] @()
         IsActiveNode = $true
     }
 
@@ -82,13 +82,12 @@ function Get-TargetResource
         # Unit Test logic, which is actually BUILTIN\USERS per ACLs, however
         # this is not obvious to users and results in unexpected functionality
         # such as successful SETs, but TEST's that fail every time, so this
-        # BUILTIN\ workaround makes behavior consistent.
-        $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity -or $_.IdentityReference -eq "BUILTIN\$Identity" }
+        # -like *\ workaround makes behavior consistent.
+        $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity -or $_.IdentityReference -like "*\$Identity" }
         if ( $matchingRules )
         {
-            # Not sure if array here is still needed. Can there be multiple ACLs for the same identity?? If not this can go away.
-            $result.Rights = [System.Security.AccessControl.FileSystemRights] @(
-                $matchingRules | Select-Object -ExpandProperty FileSystemRights -Unique
+            $result.Rights = @(
+                ( $matchingRules.FileSystemRights -split ', ' ) | Select-Object -Unique
             )
         }
     }
@@ -328,7 +327,7 @@ function Test-TargetResource
                     $notAllowed = [System.Security.AccessControl.FileSystemRights]$right
 
                     # If any rights that we want to deny are individually a full subset of existing rights...
-                    $currentRightResult = -not ($notAllowed -eq ( $notAllowed -band $currentValues.Rights ) )
+                    $currentRightResult = -not ($notAllowed -eq ( $notAllowed -band ([System.Security.AccessControl.FileSystemRights] $currentValues.Rights ) ) )
 
                     if (-not $currentRightResult)
                     {
@@ -352,18 +351,20 @@ function Test-TargetResource
             {
                 throw "No rights were specified for '$Identity' on '$Path'"
             }
-            # This isn't always the same as the input, so pre-cast it.
+            # This isn't always the same as the input if parts of the input are subset permissions, so pre-cast it.
             # For example [System.Security.AccessControl.FileSystemRights]@('Modify', 'Read', 'Write') is actually just 'Modify' within the flagged enum, so test as such to avoid false test failures.
             $expected = [System.Security.AccessControl.FileSystemRights]$Rights
 
-
-            # At minimum the AND result of the current and expected rights should be the expected rights (allow extra rights, but not missing).
-            # Otherwise permission flags are missing from the enum.
-            $result = $expected -eq ($expected -band $currentValues.Rights)
-            Write-Verbose -Message ( 'Returning {0}. The identity "{1}" has the rights "{2}". The expected rights are "{3}" (combined from input Rights "{4}").' -f  $result, $Identity,( $currentValues.Rights -join ', ' ), $expected,( $Rights -join ', ' ) )
+            $result = $false
+            if ($currentValues.Rights)
+            {
+                # At minimum the AND result of the current and expected rights should be the expected rights (allow extra rights, but not missing).
+                # Otherwise permission flags are missing from the enum.
+                $result = $expected -eq ($expected -band ([System.Security.AccessControl.FileSystemRights] $currentValues.Rights))
+                Write-Verbose -Message ( 'Returning {0}. The identity "{1}" has the rights "{2}". The expected rights are "{3}" (combined from input Rights "{4}").' -f  $result, $Identity,( $currentValues.Rights -join ', ' ), $expected,( $Rights -join ', ' ) )
+            }
         }
     }
-
 
     return $result
 }

@@ -115,21 +115,21 @@ try
             @{
                 Path = $mockPath
                 Identity = $mockIdentity
-                RightsResult = $mockRightsResult
+                RightsResult = $mockRights
                 IsActiveNodeResult = $true
                 ClusterNodes = $mockClusterNodes
             }
             @{
                 Path = $mockPath
                 Identity = 'contoso\bob'
-                RightsResult = $null        # Get returns null when no ACLs exist, not empty array.
+                RightsResult = @()
                 IsActiveNodeResult = $true
                 ClusterNodes = $mockClusterNodes
             }
             @{
                 Path = $mockPath
                 Identity = $mockIdentity
-                RightsResult = $null
+                RightsResult = @()
                 IsActiveNodeResult = $false
                 ClusterNodes = $mockClusterNodes
             }
@@ -139,7 +139,7 @@ try
             @{
                 Path = $mockPath
                 Identity = $mockIdentity
-                RightsResult = $mockRightsResult
+                RightsResult = $mockRights
                 IsActiveNodeResult = $false
                 ClusterNodes = $mockClusterNodes
                 MSCluster_ClusterMock = $mockGetCimInstanceMSCluster_ClusterEmpty
@@ -147,7 +147,7 @@ try
             @{
                 Path = $mockPath
                 Identity = $mockIdentity
-                RightsResult = $mockRightsResult
+                RightsResult = $mockRights
                 IsActiveNodeResult = $false
                 ClusterNodes = ( $mockClusterNodes | Where-Object -FilterScript { $_ -ne $env:COMPUTERNAME } )
                 MSCluster_ClusterMock = $mockGetCimInstanceMSCluster_Cluster
