@@ -705,9 +705,9 @@ try
         {
             if ($_ -like "*Access denied.*")
             {
-                # Attempt to use a common existing group
+                # Attempt to use an arbitrary existing group
                 $cleanupTestIdentity = $false
-                $testIdentity = 'Users'
+                $testIdentity = (Get-LocalGroup | Select-Object -First 1).Name
             }
             else
             {
