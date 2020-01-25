@@ -9,7 +9,7 @@
 function Get-TargetResource
 {
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])] 
+    [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -27,7 +27,7 @@ function Get-TargetResource
         Rights = $null
         IsActiveNode = $true
     }
-    
+
     if ( -not ( Test-Path -Path $Path ) )
     {
         $isClusterResource = $false
@@ -38,7 +38,7 @@ function Get-TargetResource
         if ( $msCluster )
         {
             Write-Verbose -Message "$($env:COMPUTERNAME) is a member of the Windows Server Failover Cluster '$($msCluster.Name)'"
-            
+
             # Is the defined path built off of a known mount point in the cluster?
             $clusterPartition = Get-CimInstance -Namespace root/MSCluster -ClassName MSCluster_ClusterDiskPartition |
                 Where-Object -FilterScript {
@@ -52,13 +52,13 @@ function Get-TargetResource
             # Get the possible owner nodes for the partition
             [array]$possibleOwners = $clusterPartition |
                 Get-CimAssociatedInstance -ResultClassName 'MSCluster_Resource' |
-                    Get-CimAssociatedInstance -Association 'MSCluster_ResourceToPossibleOwner' | 
+                    Get-CimAssociatedInstance -Association 'MSCluster_ResourceToPossibleOwner' |
                         Select-Object -ExpandProperty Name -Unique
-            
+
             # Ensure the current node is a possible owner of the drive
             if ( $possibleOwners -contains $env:COMPUTERNAME )
             {
-                $isClusterResource = $true                
+                $isClusterResource = $true
                 $result.IsActiveNode = $false
             }
             else
@@ -77,7 +77,13 @@ function Get-TargetResource
         $acl = Get-Acl -Path $Path
         $accessRules = $acl.Access
 
-        $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity }
+        # Set works without BUILTIN\, but Get fails without this logic.
+        # This is tested extensively by the 'Users' group in the Functional
+        # Unit Test logic, which is actually BUILTIN\USERS per ACLs, however
+        # this is not obvious to users and results in unexpected functionality
+        # such as successful SETs, but TEST's that fail every time, so this
+        # BUILTIN\ workaround makes behavior consistent.
+        $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity -or $_.IdentityReference -eq "BUILTIN\$Identity" }
         if ( $matchingRules )
         {
             # Not sure if array here is still needed. Can there be multiple ACLs for the same identity?? If not this can go away.
@@ -96,7 +102,7 @@ function Get-TargetResource
         The path to the item that should have permissions set.
     .PARAMETER Identity
         The identity to set permissions for.
-    
+
     .PARAMETER Rights
         The permissions to include in this rule. Optional if Ensure is set to value 'Absent'.
     .PARAMETER Ensure
@@ -172,16 +178,16 @@ function Set-TargetResource
         {
             throw "No rights were specified for '$Identity' on '$Path'"
         }
-        
+
         Write-Verbose -Message "Setting access rules for '$Identity' on '$Path'"
 
         $newFileSystemAccessRuleParameters = @{
             TypeName = 'System.Security.AccessControl.FileSystemAccessRule'
             ArgumentList = @(
-                $Identity, 
-                [System.Security.AccessControl.FileSystemRights]$Rights, 
-                'ContainerInherit,ObjectInherit', 
-                'None', 
+                $Identity,
+                [System.Security.AccessControl.FileSystemRights]$Rights,
+                'ContainerInherit,ObjectInherit',
+                'None',
                 'Allow'
             )
         }
@@ -214,7 +220,7 @@ function Set-TargetResource
         The path to the item that should have permissions set.
     .PARAMETER Identity
         The identity to set permissions for.
-    
+
     .PARAMETER Rights
         The permissions to include in this rule. Optional if Ensure is set to value 'Absent'.
     .PARAMETER Ensure
@@ -225,7 +231,7 @@ function Set-TargetResource
 function Test-TargetResource
 {
     [CmdletBinding()]
-    [OutputType([System.Boolean])] 
+    [OutputType([System.Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -269,7 +275,7 @@ function Test-TargetResource
         [ValidateSet('Present','Absent')]
         [String]
         $Ensure = 'Present',
-        
+
         [Parameter()]
         [Boolean]
         $ProcessOnlyOnActiveNode
@@ -281,7 +287,7 @@ function Test-TargetResource
         Path = $Path
         Identity = $Identity
     }
-    
+
     $currentValues = Get-TargetResource @getTargetResourceParameters
 
     <#
@@ -304,7 +310,7 @@ function Test-TargetResource
             {
                 # Set rights to an empty array
                 $Rights = @()
-            }                
+            }
             if ( $currentValues.Rights -and (-not $Rights) )
             {
                 $result = $false
@@ -317,13 +323,13 @@ function Test-TargetResource
             }
             elseif ( $Rights ) # always hit, but just clarifying what the actual case is by filling in the if block
             {
-                foreach ($right in $Rights) 
+                foreach ($right in $Rights)
                 {
                     $notAllowed = [System.Security.AccessControl.FileSystemRights]$right
-                
+
                     # If any rights that we want to deny are individually a full subset of existing rights...
                     $currentRightResult = -not ($notAllowed -eq ( $notAllowed -band $currentValues.Rights ) )
-                    
+
                     if (-not $currentRightResult)
                     {
                         Write-Verbose -Message ( 'Testing right {0} absence: false. The identity "{1}" has the rights "{2}" which include "{0}", which are included in the desired Absent rights "{3}".' -f $notAllowed, $Identity,( $currentValues.Rights -join ', ' ), ($Rights -join ', ') )
@@ -338,7 +344,7 @@ function Test-TargetResource
                 Write-Verbose -Message ( 'Returning {0} due to the above failures.' -f $result )
             }
         }
-        
+
         'Present'
         {
             # Validate the rights parameter was passed
@@ -346,12 +352,12 @@ function Test-TargetResource
             {
                 throw "No rights were specified for '$Identity' on '$Path'"
             }
-            # This isn't always the same as the input, so pre-cast it. 
+            # This isn't always the same as the input, so pre-cast it.
             # For example [System.Security.AccessControl.FileSystemRights]@('Modify', 'Read', 'Write') is actually just 'Modify' within the flagged enum, so test as such to avoid false test failures.
-            $expected = [System.Security.AccessControl.FileSystemRights]$Rights 
+            $expected = [System.Security.AccessControl.FileSystemRights]$Rights
 
 
-            # At minimum the AND result of the current and expected rights should be the expected rights (allow extra rights, but not missing). 
+            # At minimum the AND result of the current and expected rights should be the expected rights (allow extra rights, but not missing).
             # Otherwise permission flags are missing from the enum.
             $result = $expected -eq ($expected -band $currentValues.Rights)
             Write-Verbose -Message ( 'Returning {0}. The identity "{1}" has the rights "{2}". The expected rights are "{3}" (combined from input Rights "{4}").' -f  $result, $Identity,( $currentValues.Rights -join ', ' ), $expected,( $Rights -join ', ' ) )
@@ -376,6 +382,6 @@ function Get-AclAccess
         [String]
         $Path
     )
-    
+
     return (Get-Item -Path $Path).GetAccessControl('Access')
 }
