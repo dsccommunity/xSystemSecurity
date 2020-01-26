@@ -124,45 +124,6 @@ Please check out common DSC Community [contributing guidelines](https://dsccommu
 Please refer to [this article](http://technet.microsoft.com/en-us/library/dd883248(v=ws.10).aspx)
 for the effects and security impact of Enhanced Security Configuration.
 
-## Versions
-
-### Unreleased
-
-* Update appveyor.yml to use the default template.
-* Added default template files .codecov.yml, .gitattributes, and .gitignore, and
-  .vscode folder.
-* Corrected xFileSystemAccessRule flag handling so that the DSC resources 'Test' passes correctly.
-* xFileSystemAccessRule Ensure: Absent with no rights specified will now correctly remove existing ACLs for the specified identity, rather than silently leaving them there.
-* Added default template files .codecov.yml, .gitattributes, and .gitignore,
-  and .vscode folder.
-
-### 1.4.0.0
-
-* Changes to xFileSystemAccessRule
-  * Fixed issue when cluster shared disk is not present on the server
-    ([issue #16](https://github.com/PowerShell/xSystemSecurity/issues/16)).
-    [Dan Reist (@randomnote1)](https://github.com/randomnote1)
-
-### 1.3.0.0
-
-* Updated FileSystemACL Set
-
-### 1.2.0.0
-
-* Converted appveyor.yml to install Pester from PSGallery instead of from
-  Chocolatey.
-* Added xFileSystemAccessRule resource
-
-### 1.1.0.0
-
-* Fixed encoding
-
-### 1.0.0.0
-
-* Initial release with the following resources
-  * xUAC
-  * xIEEsc
-
 ## Examples
 
 ### Disable User Account Control
