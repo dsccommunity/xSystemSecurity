@@ -49,9 +49,6 @@ Pester:
   Script:
     - tests/Unit
   ExcludeTag:
-    - helpQuality
-    - FunctionalQuality
-    - TestQuality
   Tag:
   CodeCoverageThreshold: 45
 DscTest:
