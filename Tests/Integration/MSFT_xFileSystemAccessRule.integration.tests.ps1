@@ -342,21 +342,23 @@ finally
     }
 }
 
+$script:dscModuleName = 'xSystemSecurity'
+$script:dscResourceName = 'MSFT_xFileSystemAccessRule'
 
-[String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+try
 {
-    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    Import-Module -Name DscResource.Test -Force -ErrorAction 'Stop'
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-$initializeTestEnvironmentSplat = @{
-    DscResourceName = $script:DSCResourceName
-    TestType = 'Integration'
-    DscModuleName = $script:DSCModuleName
-}
-$TestEnvironment = Initialize-TestEnvironment @initializeTestEnvironmentSplat
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
 
 New-Item -Path "$env:SystemDrive\SampleFolder" -ItemType Directory
 try
