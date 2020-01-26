@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - xSystemSecurity
-  - Added automatic release with a new CI pipeline.
+  - Added continuous delivery with a new CI pipeline.
 
 ## [1.4.0.0] - 2018-06-13
 
