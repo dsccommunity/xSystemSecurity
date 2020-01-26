@@ -1,4 +1,4 @@
-﻿<#
+<#
     .SYNOPSIS
         Gets the rights of the specified filesystem object for the specified identity.
 
@@ -11,7 +11,7 @@
 function Get-TargetResource
 {
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])] 
+    [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -29,7 +29,7 @@ function Get-TargetResource
         Rights = [System.String[]] @()
         IsActiveNode = $true
     }
-    
+
     if ( -not ( Test-Path -Path $Path ) )
     {
         $isClusterResource = $false
@@ -40,7 +40,7 @@ function Get-TargetResource
         if ( $msCluster )
         {
             Write-Verbose -Message "$($env:COMPUTERNAME) is a member of the Windows Server Failover Cluster '$($msCluster.Name)'"
-            
+
             # Is the defined path built off of a known mount point in the cluster?
             $clusterPartition = Get-CimInstance -Namespace root/MSCluster -ClassName MSCluster_ClusterDiskPartition |
                 Where-Object -FilterScript {
@@ -54,13 +54,13 @@ function Get-TargetResource
             # Get the possible owner nodes for the partition
             [array]$possibleOwners = $clusterPartition |
                 Get-CimAssociatedInstance -ResultClassName 'MSCluster_Resource' |
-                    Get-CimAssociatedInstance -Association 'MSCluster_ResourceToPossibleOwner' | 
+                    Get-CimAssociatedInstance -Association 'MSCluster_ResourceToPossibleOwner' |
                         Select-Object -ExpandProperty Name -Unique
-            
+
             # Ensure the current node is a possible owner of the drive
             if ( $possibleOwners -contains $env:COMPUTERNAME )
             {
-                $isClusterResource = $true                
+                $isClusterResource = $true
                 $result.IsActiveNode = $false
             }
             else
@@ -97,7 +97,7 @@ function Get-TargetResource
 
     .PARAMETER Identity
         The identity to set permissions for.
-    
+
     .PARAMETER Rights
         The permissions to include in this rule. Optional if Ensure is set to value 'Absent'.
 
@@ -175,16 +175,16 @@ function Set-TargetResource
         {
             throw "No rights were specified for '$Identity' on '$Path'"
         }
-        
+
         Write-Verbose -Message "Setting access rules for '$Identity' on '$Path'"
 
         $newFileSystemAccessRuleParameters = @{
             TypeName = 'System.Security.AccessControl.FileSystemAccessRule'
             ArgumentList = @(
-                $Identity, 
-                [System.Security.AccessControl.FileSystemRights]$Rights, 
-                'ContainerInherit,ObjectInherit', 
-                'None', 
+                $Identity,
+                [System.Security.AccessControl.FileSystemRights]$Rights,
+                'ContainerInherit,ObjectInherit',
+                'None',
                 'Allow'
             )
         }
@@ -219,7 +219,7 @@ function Set-TargetResource
 
     .PARAMETER Identity
         The identity to set permissions for.
-    
+
     .PARAMETER Rights
         The permissions to include in this rule. Optional if Ensure is set to value 'Absent'.
 
@@ -232,7 +232,7 @@ function Set-TargetResource
 function Test-TargetResource
 {
     [CmdletBinding()]
-    [OutputType([System.Boolean])] 
+    [OutputType([System.Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -276,7 +276,7 @@ function Test-TargetResource
         [ValidateSet('Present','Absent')]
         [String]
         $Ensure = 'Present',
-        
+
         [Parameter()]
         [Boolean]
         $ProcessOnlyOnActiveNode
@@ -288,7 +288,7 @@ function Test-TargetResource
         Path = $Path
         Identity = $Identity
     }
-    
+
     $currentValues = Get-TargetResource @getTargetResourceParameters
 
     <#
@@ -311,12 +311,12 @@ function Test-TargetResource
                 # Set rights to an empty array
                 $Rights = @()
             }
-            
+
             # If the right is defined and currently set, return it
             $comparisonResult = Compare-Object -ReferenceObject $Rights -DifferenceObject $currentValues.Rights -ExcludeDifferent -IncludeEqual |
                 Select-Object -ExpandProperty InputObject
         }
-        
+
         'Present'
         {
             # Validate the rights parameter was passed
@@ -324,7 +324,7 @@ function Test-TargetResource
             {
                 throw "No rights were specified for '$Identity' on '$Path'"
             }
-            
+
             # If the right is defined and missing, return it
             $comparisonResult = Compare-Object -ReferenceObject $Rights -DifferenceObject $currentValues.Rights |
                 Where-Object -FilterScript { $_.SideIndicator -eq '<=' } |
@@ -357,6 +357,6 @@ function Get-AclAccess
         [String]
         $Path
     )
-    
+
     return (Get-Item -Path $Path).GetAccessControl('Access')
 }
