@@ -422,5 +422,5 @@ try
 finally
 {
     Remove-Item -Path "$env:SystemDrive\SampleFolder" -Recurse -Force -Confirm:$false -ErrorAction 'SilentlyContinue'
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }

@@ -32,7 +32,6 @@ BuildWorkflow:
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
-    - hqrmtest
 
   publish:
     - Publish_release_to_GitHub
@@ -50,9 +49,10 @@ Pester:
     - tests/Unit
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 45
+  CodeCoverageThreshold: 70
 DscTest:
   ExcludeTag:
+    - "Common Tests - Validate Localization"
     - "Common Tests - New Error-Level Script Analyzer Rules"
   Tag:
   ExcludeSourceFile:

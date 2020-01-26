@@ -2,12 +2,12 @@ Configuration xUac
 {
     param
     (
-        [parameter(Mandatory = $true)]
-        [ValidateSet("AlwaysNotify","NotifyChanges","NotifyChangesWithoutDimming","NeverNotify","NeverNotifyAndDisableAll")]
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('AlwaysNotify', 'NotifyChanges', 'NotifyChangesWithoutDimming', 'NeverNotify', 'NeverNotifyAndDisableAll')]
         [System.String]
-        $Setting  
+        $Setting
     )
-    
+
     #Initialize variables to default values which is to NotifyChanges.
     $ConsentPromptBehaviorAdmin = 5
     $EnableLua = 1
@@ -15,64 +15,68 @@ Configuration xUac
 
     switch ($Setting)
     {
-        "AlwaysNotify" 
+        'AlwaysNotify'
         {
             $ConsentPromptBehaviorAdmin = 2
             $EnableLua = 1
             $PromptOnSecureDesktop = 1
-        }    
-        "NotifyChanges" 
+        }
+
+        'NotifyChanges'
         {
             $ConsentPromptBehaviorAdmin = 5
             $EnableLua = 1
             $PromptOnSecureDesktop = 1
-        }    
-        "NotifyChangesWithoutDimming" 
+        }
+
+        'NotifyChangesWithoutDimming'
         {
             $ConsentPromptBehaviorAdmin = 5
             $EnableLua = 1
             $PromptOnSecureDesktop = 0
-        }    
-        "NeverNotify" 
+        }
+
+        'NeverNotify'
         {
             $ConsentPromptBehaviorAdmin = 0
             $EnableLua = 1
             $PromptOnSecureDesktop = 0
-        }    
-        "NeverNotifyAndDisableAll" 
+        }
+
+        'NeverNotifyAndDisableAll'
         {
             $ConsentPromptBehaviorAdmin = 0
             $EnableLua = 0
             $PromptOnSecureDesktop = 0
-        }    
+        }
     }
 
-    $UacKey = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System"
+    $UacKey = 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System'
     Registry ConsentPromptBehaviorAdmin
-    {       
-        Ensure = "Present"
-        Key = $UacKey
-        ValueName = "ConsentPromptBehaviorAdmin"
+    {
+        Ensure    = 'Present'
+        Key       = $UacKey
+        ValueName = 'ConsentPromptBehaviorAdmin'
         ValueData = [string] $ConsentPromptBehaviorAdmin
-        ValueType = "Dword"
+        ValueType = 'Dword'
     }
 
     Registry EnableLua
-    {       
-        Ensure = "Present"
-        Key = $UacKey
-        ValueName = "EnableLUA"
+    {
+        Ensure    = 'Present'
+        Key       = $UacKey
+        ValueName = 'EnableLUA'
         ValueData = [string] $EnableLua
-        ValueType = "Dword"
+        ValueType = 'Dword'
     }
 
     Registry PromptOnSecureDesktop
-    {       
-        Ensure = "Present"
-        Key = $UacKey
-        ValueName = "PromptOnSecureDesktop"
+    {
+        Ensure    = 'Present'
+        Key       = $UacKey
+        ValueName = 'PromptOnSecureDesktop'
         ValueData = [string] $PromptOnSecureDesktop
-        ValueType = "Dword"
+        ValueType = 'Dword'
     }
 }
-       
+
