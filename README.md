@@ -2,7 +2,8 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/u3h1665qqneo98bh/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xsystemsecurity/branch/master)
 
-The **xSystemSecurity** module contains the **xUAC** and **xIEEsc** DSC resources for configuring and managing UAC and IE Enhanced Security Configuration.
+The **xSystemSecurity** module contains DSC resources for configuring and
+managing computer security.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -13,8 +14,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ## Resources
 
-* **xUAC** handles how and when the User Account Control Windows Prompt shows up or doesn't show up.
+* **xUAC** handles how and when the User Account Control Windows Prompt 
+  shows up or doesn't show up.
 * **xIEEsc** enables or disables IE Enhanced Security Configuration.
+* **xFileSystemAccessRule** modifies the rights of file system objects.
 
 ### xUAC
 
