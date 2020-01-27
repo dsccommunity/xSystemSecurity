@@ -23,8 +23,9 @@ try
             {
                 # Attempt to use an arbitrary existing group
                 $cleanupTestIdentity = $false
-                $testIdentity = 'Network Service'
+                $testIdentity = 'Users'
                 Write-Warning "Couldn't create a temporary local group. Instead using '$testIdentity'"
+                Write-Verbose -Verbose "Using testIdentity '$testIdentity'"
             }
             else
             {
@@ -40,10 +41,10 @@ try
             BeforeAll {
                 $testRoot = "$TestDrive\xFSAR_TestFolder"
                 New-Item $testRoot -ItemType Directory -Force -ErrorAction 'Stop'
-                Set-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
+                Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
 
                 # Shouldn't throw when run twice, not necessary for DSC but just verifying my test setup is safe
-                Set-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
+                Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
             }
             $absentAclTestCases = @(
                 @{
@@ -90,7 +91,7 @@ try
                     $ExpectedResult,
                     $Explanation
                 )
-                $result = Test-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights $Rights -Ensure $Ensure
+                $result = Test-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights $Rights -Ensure $Ensure
                 $result | Should -Be $ExpectedResult -Because $Explanation
             }
         }
@@ -101,7 +102,7 @@ try
                 $testRoot = "$TestDrive\xFSAR_TestFolder"
                 New-Item $testRoot -ItemType Directory -Force -ErrorAction 'Stop'
                 # This should effectively end up as 'Write, ReadAndExecute'
-                Set-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights @("Write", "Read", "ExecuteFile") -Ensure Present
+                Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @("Write", "Read", "ExecuteFile") -Ensure Present
             }
             $setSubsetReadAndExecuteTests = @(
                 @{
@@ -142,7 +143,7 @@ try
                     $ExpectedResult,
                     $Explanation
                 )
-                $result = Test-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights $Rights -Ensure $Ensure
+                $result = Test-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights $Rights -Ensure $Ensure
                 $result | Should -Be $ExpectedResult -Because $Explanation
             }
         }
@@ -151,7 +152,7 @@ try
             BeforeAll {
                 $testRoot = "$TestDrive\xFSAR_TestFolder"
                 New-Item $testRoot -ItemType Directory -Force -ErrorAction 'Stop'
-                Set-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights @("FullControl") -Ensure Present
+                Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @("FullControl") -Ensure Present
             }
             $fullControlSubsetTests = @(
                 @{
@@ -210,7 +211,7 @@ try
                     $ExpectedResult,
                     $Explanation
                 )
-                $result = Test-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights $Rights -Ensure $Ensure
+                $result = Test-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights $Rights -Ensure $Ensure
                 $result | Should -Be $ExpectedResult -Because $Explanation
             }
         }
@@ -219,9 +220,9 @@ try
             BeforeAll {
                 $testRoot = "$TestDrive\xFSAR_TestFolder"
                 New-Item $testRoot -ItemType Directory -Force -ErrorAction 'Stop'
-                Set-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
+                Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
 
-                Set-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights @("Read", "Write") -Ensure Present
+                Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @("Read", "Write") -Ensure Present
             }
 
             $existingMultiPermission = @(
@@ -281,7 +282,7 @@ try
                     $ExpectedResult,
                     $Explanation
                 )
-                $result = Test-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights $Rights -Ensure $Ensure
+                $result = Test-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights $Rights -Ensure $Ensure
                 $result | Should -Be $ExpectedResult -Because $Explanation
             }
         }
@@ -290,9 +291,9 @@ try
             BeforeAll {
                 $testRoot = "$TestDrive\xFSAR_TestFolder"
                 New-Item $testRoot -ItemType Directory -Force -ErrorAction 'Stop'
-                Set-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
+                Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
 
-                Set-TargetResource -Path "$testRoot" -Identity $testIdentity -Rights @("Read", "Write") -Ensure Present
+                Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @("Read", "Write") -Ensure Present
             }
 
             $nonExistantUserPermission = @(
@@ -326,7 +327,7 @@ try
                     $Explanation,
                     $Identity
                 )
-                $result = Test-TargetResource -Path "$testRoot" -Identity $Identity -Rights $Rights -Ensure $Ensure
+                $result = Test-TargetResource -Verbose -Path "$testRoot" -Identity $Identity -Rights $Rights -Ensure $Ensure
                 $result | Should -Be $ExpectedResult -Because $Explanation
             }
         }
