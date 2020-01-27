@@ -77,13 +77,15 @@ function Get-TargetResource
         $acl = Get-Acl -Path $Path
         $accessRules = $acl.Access
 
-        # Set works without BUILTIN\, but Get fails without this logic.
-        # This is tested extensively by the 'Users' group in the Functional
-        # Unit Test logic, which is actually BUILTIN\USERS per ACLs, however
+        # Set works without BUILTIN\, but Get fails (silently) without this logic.
+        # This is tested by the 'Users' group in the Functional
+        # Integration test logic, which is actually BUILTIN\USERS per ACLs, however
         # this is not obvious to users and results in unexpected functionality
-        # such as successful SETs, but TEST's that fail every time, so this
-        # -like *\ workaround makes behavior consistent.
-        $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity -or $_.IdentityReference -like "*\$Identity" }
+        # such as successful SETs, but TEST's that fail every time, so this regex
+        # workaround for the common windows identifier prefixes makes behavior consistent.
+        $regexEscapedIdentity = [RegEx]::Escape($Identity)
+        $regex = "^(NT AUTHORITY|BUILTIN|NT SERVICES)\\$regexEscapedIdentity"
+        $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity -or $_.IdentityReference -match $regex }
         if ( $matchingRules )
         {
             $result.Rights = @(
@@ -340,7 +342,7 @@ function Test-TargetResource
 
                     $result = $result -and $currentRightResult
                 }
-                Write-Verbose -Message ( 'Returning {0} due to the above failures.' -f $result )
+                Write-Verbose -Message ( 'Returning {0}.' -f $result )
             }
         }
 
