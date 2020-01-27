@@ -23,7 +23,8 @@ try
             {
                 # Attempt to use an arbitrary existing group
                 $cleanupTestIdentity = $false
-                $testIdentity = (Get-LocalGroup | Select-Object -First 1).Name
+                $testIdentity = 'Network Service'
+                Write-Warning "Couldn't create a temporary local group. Instead using '$testIdentity'"
             }
             else
             {
