@@ -30,7 +30,7 @@ else
     }
 }
 
-configuration MSFT_xFileSystemAccessRule_NewRule
+configuration MSFT_xFileSystemAccessRule_NewRule_Config
 {
     Import-DscResource -ModuleName 'xSystemSecurity'
 
@@ -45,7 +45,7 @@ configuration MSFT_xFileSystemAccessRule_NewRule
     }
 }
 
-configuration MSFT_xFileSystemAccessRule_UpdateRule
+configuration MSFT_xFileSystemAccessRule_UpdateRule_Config
 {
     Import-DscResource -ModuleName 'xSystemSecurity'
 
@@ -60,7 +60,7 @@ configuration MSFT_xFileSystemAccessRule_UpdateRule
     }
 }
 
-configuration MSFT_xFileSystemAccessRule_RemoveRule
+configuration MSFT_xFileSystemAccessRule_RemoveRule_Config
 {
     Import-DscResource -ModuleName 'xSystemSecurity'
 
@@ -71,50 +71,6 @@ configuration MSFT_xFileSystemAccessRule_RemoveRule
             Path     = $Node.Path
             Identity = 'NT AUTHORITY\NETWORK SERVICE'
             Ensure   = 'Absent'
-        }
-    }
-}
-
-<#
-    .SYNOPSIS
-        Configures database mail.
-
-    .NOTES
-        This also enables the option 'Database Mail XPs'.
-#>
-Configuration MSFT_xFileSystemAccessRule_Add_Config
-{
-    Import-DscResource -ModuleName 'xSystemSecurity'
-
-    node $AllNodes.NodeName
-    {
-        SqlServerConfiguration 'EnableDatabaseMailXPs'
-        {
-            ServerName     = $Node.ServerName
-            InstanceName   = $Node.InstanceName
-            OptionName     = 'Database Mail XPs'
-            OptionValue    = 1
-            RestartService = $false
-        }
-
-        SqlServerDatabaseMail 'Integration_Test'
-        {
-            Ensure               = 'Present'
-            ServerName           = $Node.ServerName
-            InstanceName         = $Node.InstanceName
-            AccountName          = $Node.AccountName
-            ProfileName          = $Node.ProfileName
-            EmailAddress         = $Node.EmailAddress
-            ReplyToAddress       = $Node.EmailAddress
-            DisplayName          = $Node.MailServerName
-            MailServerName       = $Node.MailServerName
-            Description          = $Node.Description
-            LoggingLevel         = $Node.LoggingLevel
-            TcpPort              = $Node.TcpPort
-
-            PsDscRunAsCredential = New-Object `
-                -TypeName System.Management.Automation.PSCredential `
-                -ArgumentList @($Node.Username, (ConvertTo-SecureString -String $Node.Password -AsPlainText -Force))
         }
     }
 }
