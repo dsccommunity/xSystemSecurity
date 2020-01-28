@@ -15,6 +15,7 @@ try
         # which we will be assigning permissions to a temp folder to in these tests.
         try
         {
+            Write-Verbose -Verbose "Trying to create local group '$testIdentity'"
             New-LocalGroup -Description "Group for MSFT_xFileSystemAccessRule tests" -Name $testIdentity -ErrorAction 'Stop'
         }
         catch
