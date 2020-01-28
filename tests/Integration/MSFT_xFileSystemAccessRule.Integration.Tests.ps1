@@ -17,6 +17,19 @@ $script:testEnvironment = Initialize-TestEnvironment `
     -ResourceType 'Mof' `
     -TestType 'Integration'
 
+function Wait-ForIdleLcm
+{
+    [CmdletBinding()]
+    param ()
+
+    while ((Get-DscLocalConfigurationManager).LCMState -ne 'Idle')
+    {
+        Write-Verbose -Message 'Waiting for the LCM to become idle'
+
+        Start-Sleep -Seconds 2
+    }
+}
+
 try
 {
     $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
@@ -86,6 +99,8 @@ try
             }
         }
 
+        Wait-ForIdleLcm
+
         $configurationName = "$($script:dscResourceName)_UpdateRule_Config"
 
         Context ('When using configuration {0}' -f $configurationName) {
@@ -139,6 +154,8 @@ try
                 Test-DscConfiguration -Verbose | Should -Be 'True'
             }
         }
+
+        Wait-ForIdleLcm
 
         $configurationName = "$($script:dscResourceName)_RemoveRule_Config"
 
