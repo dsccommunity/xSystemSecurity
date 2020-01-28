@@ -32,7 +32,7 @@ try
         Context ('When using configuration {0}' -f $configurationName) {
             BeforeAll {
                 # The variable $ConfigurationData was dot-sourced above.
-                $ConfigurationData['Path'] = "$TestDrive\SampleFolder"
+                $ConfigurationData.AllNodes[0]['Path'] = "$TestDrive\SampleFolder"
             }
 
             It 'Should compile and apply the MOF without throwing' {
@@ -87,7 +87,7 @@ try
         Context ('When using configuration {0}' -f $configurationName) {
             BeforeAll {
                 # The variable $ConfigurationData was dot-sourced above.
-                $ConfigurationData['Path'] = "$TestDrive\SampleFolder"
+                $ConfigurationData.AllNodes[0]['Path'] = "$TestDrive\SampleFolder"
             }
 
             It 'Should compile and apply the MOF without throwing' {
@@ -141,7 +141,7 @@ try
         Context ('When using configuration {0}' -f $configurationName) {
             BeforeAll {
                 # The variable $ConfigurationData was dot-sourced above.
-                $ConfigurationData['Path'] = "$TestDrive\SampleFolder"
+                $ConfigurationData.AllNodes[0]['Path'] = "$TestDrive\SampleFolder"
             }
 
             It 'Should compile and apply the MOF without throwing' {

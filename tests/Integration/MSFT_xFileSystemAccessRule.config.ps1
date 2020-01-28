@@ -1,7 +1,3 @@
-#region HEADER
-# Integration Test Config Template Version: 1.2.0
-#endregion
-
 $configFile = [System.IO.Path]::ChangeExtension($MyInvocation.MyCommand.Path, 'json')
 if (Test-Path -Path $configFile)
 {
