@@ -47,13 +47,13 @@ try
         #region Cmdlet Mocks
         $mockGetAcl = {
             return New-Object -TypeName PsObject |
-            Add-Member -MemberType NoteProperty -Name Access -Value @(
-                New-Object -TypeName PsObject |
-                    Add-Member -MemberType NoteProperty -Name IdentityReference -Value $mockIdentity -PassThru |
-                    Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRightsResult -PassThru
-            ) -PassThru |
-            Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
-            Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
+                Add-Member -MemberType NoteProperty -Name Access -Value @(
+                    New-Object -TypeName PsObject |
+                        Add-Member -MemberType NoteProperty -Name IdentityReference -Value $mockIdentity -PassThru |
+                            Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRightsResult -PassThru
+                ) -PassThru |
+                    Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
+                        Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
         }
 
         $mockGetCimAssociatedInstanceMSCluster_Resource = {
@@ -91,16 +91,16 @@ try
 
         $mockGetItem = {
             return New-Object -TypeName PsObject |
-            Add-Member -MemberType ScriptMethod -Name GetAccessControl -Value {
-                return New-Object -TypeName PsObject |
-                Add-Member -MemberType NoteProperty -Name Access -Value @(
-                    New-Object -TypeName PsObject |
-                        Add-Member -MemberType NoteProperty -Name IdentityReference -Value $mockIdentity -PassThru |
-                        Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRightsResult -PassThru
-                ) -PassThru |
-                Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
-                Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
-            } -PassThru
+                Add-Member -MemberType ScriptMethod -Name GetAccessControl -Value {
+                    return New-Object -TypeName PsObject |
+                        Add-Member -MemberType NoteProperty -Name Access -Value @(
+                            New-Object -TypeName PsObject |
+                                Add-Member -MemberType NoteProperty -Name IdentityReference -Value $mockIdentity -PassThru |
+                                    Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRightsResult -PassThru
+                        ) -PassThru |
+                            Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
+                                Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
+                } -PassThru
         }
 
         $mockTestPath = {
@@ -179,8 +179,13 @@ try
                 Rights                  = $null
                 Ensure                  = 'Absent'
                 ProcessOnlyOnActiveNode = $false
-                TestResult = $false         # Per discussion with Johlju the previous behavior was non-intuitive, and this case implies all ACL permissions should be removed, not a silent pass.
-                ClusterNodes = $mockClusterNodes
+                <#
+                    Per discussion with Johlju the previous behavior was non-intuitive,
+                    and this case implies all ACL permissions should be removed, not a
+                    silent pass.
+                #>
+                TestResult              = $false
+                ClusterNodes            = $mockClusterNodes
             }
             @{
                 Path                    = $mockPath
@@ -682,4 +687,3 @@ finally
 {
     Invoke-TestCleanup
 }
-
