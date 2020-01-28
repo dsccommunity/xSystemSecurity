@@ -25,6 +25,10 @@ try
     Describe "$($script:dscResourceName)_Integration" {
         BeforeAll {
             $resourceId = "[$($script:dscResourceFriendlyName)]Integration_Test"
+
+            $mockFolderPath1 = "$TestDrive\SampleFolder"
+
+            New-Item -Path $mockFolderPath1 -ItemType 'Directory' -Force
         }
 
         $configurationName = "$($script:dscResourceName)_NewRule_Config"
@@ -32,7 +36,7 @@ try
         Context ('When using configuration {0}' -f $configurationName) {
             BeforeAll {
                 # The variable $ConfigurationData was dot-sourced above.
-                $ConfigurationData.AllNodes[0]['Path'] = "$TestDrive\SampleFolder"
+                $ConfigurationData.AllNodes[0]['Path'] = $mockFolderPath1
             }
 
             It 'Should compile and apply the MOF without throwing' {
@@ -87,7 +91,7 @@ try
         Context ('When using configuration {0}' -f $configurationName) {
             BeforeAll {
                 # The variable $ConfigurationData was dot-sourced above.
-                $ConfigurationData.AllNodes[0]['Path'] = "$TestDrive\SampleFolder"
+                $ConfigurationData.AllNodes[0]['Path'] = $mockFolderPath1
             }
 
             It 'Should compile and apply the MOF without throwing' {
@@ -141,7 +145,7 @@ try
         Context ('When using configuration {0}' -f $configurationName) {
             BeforeAll {
                 # The variable $ConfigurationData was dot-sourced above.
-                $ConfigurationData.AllNodes[0]['Path'] = "$TestDrive\SampleFolder"
+                $ConfigurationData.AllNodes[0]['Path'] = $mockFolderPath1
             }
 
             It 'Should compile and apply the MOF without throwing' {
