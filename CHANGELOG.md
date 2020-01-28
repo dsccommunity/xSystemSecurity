@@ -13,11 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - xFileSystemAccessRule
-  - Corrected flag handling so that the 'Test-TargetResource' passes
+  - Corrected flag handling so that the `Test-TargetResource` passes
     correctly.
   - Using `Ensure = 'Absent'` with no rights specified will now correctly
     remove existing ACLs for the specified identity, rather than silently
     leaving them there.
+  - Correctly returns property `Ensure` from the function `Get-TargetResource`.
 
 ## [1.4.0.0] - 2018-06-13
 
