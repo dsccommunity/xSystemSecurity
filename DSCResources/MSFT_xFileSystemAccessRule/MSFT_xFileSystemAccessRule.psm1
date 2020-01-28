@@ -83,6 +83,7 @@ function Get-TargetResource
         # this is not obvious to users and results in unexpected functionality
         # such as successful SETs, but TEST's that fail every time, so this regex
         # workaround for the common windows identifier prefixes makes behavior consistent.
+        # Local groups are fully qualified with $env:ComputerName\.
         $regexEscapedIdentity = [RegEx]::Escape($Identity)
         $regex = "^(NT AUTHORITY|BUILTIN|NT SERVICES|$ENV:ComputerName)\\$regexEscapedIdentity"
         $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity -or $_.IdentityReference -match $regex }
