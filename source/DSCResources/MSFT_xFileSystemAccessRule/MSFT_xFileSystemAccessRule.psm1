@@ -22,6 +22,7 @@ function Get-TargetResource
     )
 
     $result = @{
+        Ensure = 'Absent'
         Path = $Path
         Identity = $Identity
         Rights = [System.string[]] @()
@@ -60,6 +61,7 @@ function Get-TargetResource
             {
                 $isClusterResource = $true
                 $result.IsActiveNode = $false
+                $result.Ensure = 'Present'
             }
             else
             {
@@ -90,11 +92,13 @@ function Get-TargetResource
         $matchingRules = $accessRules | Where-Object -FilterScript { $_.IdentityReference -eq $Identity -or $_.IdentityReference -match $regex }
         if ( $matchingRules )
         {
+            $result.Ensure = 'Present'
             $result.Rights = @(
                 ( $matchingRules.FileSystemRights -split ', ' ) | Select-Object -Unique
             )
         }
     }
+
     return $result
 }
 
