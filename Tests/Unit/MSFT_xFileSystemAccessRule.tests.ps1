@@ -41,17 +41,19 @@ try
         $mockIdentity = 'NT AUTHORITY\NETWORK SERVICE'
         $mockPath = "$($env:SystemDrive)\TestFolder"
         $mockRights = @('ReadData','WriteAttributes')
+        # The filesystem doesn't return a string array for ACLs, it returns a bit-flagged [System.Security.AccessControl.FileSystemRights]
+        $mockRightsResult = [System.Security.AccessControl.FileSystemRights] @('ReadData','WriteAttributes')
         $mockTestPathResult = $true
         #endregion Mock Variables
 
         #region Cmdlet Mocks
-        $mockGetAcl = { 
+        $mockGetAcl = {
             return New-Object -TypeName PsObject |
             Add-Member -MemberType NoteProperty -Name Access -Value @(
                 New-Object -TypeName PsObject |
                     Add-Member -MemberType NoteProperty -Name IdentityReference -Value $mockIdentity -PassThru |
-                    Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRights -PassThru
-            ) -PassThru | 
+                    Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRightsResult -PassThru
+            ) -PassThru |
             Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
             Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
         }
@@ -96,8 +98,8 @@ try
                 Add-Member -MemberType NoteProperty -Name Access -Value @(
                     New-Object -TypeName PsObject |
                         Add-Member -MemberType NoteProperty -Name IdentityReference -Value $mockIdentity -PassThru |
-                        Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRights -PassThru
-                ) -PassThru | 
+                        Add-Member -MemberType NoteProperty -Name FileSystemRights -Value $mockRightsResult -PassThru
+                ) -PassThru |
                 Add-Member -MemberType ScriptMethod -Name "SetAccessRule" -Value {} -PassThru |
                 Add-Member -MemberType ScriptMethod -Name "RemoveAccessRule" -Value {} -PassThru
             } -PassThru
@@ -161,7 +163,7 @@ try
                 ProcessOnlyOnActiveNode = $false
             }
         )
-        
+
         $setTargetResourceTestCasesPresent = @(
             @{
                 Path = $mockPath
@@ -179,7 +181,7 @@ try
                 Rights = $null
                 Ensure = 'Absent'
                 ProcessOnlyOnActiveNode = $false
-                TestResult = $true
+                TestResult = $false         # Per discussion with Johlju the previous behavior was non-intuitive, and this case implies all ACL permissions should be removed, not a silent pass.
                 ClusterNodes = $mockClusterNodes
             }
             @{
@@ -317,7 +319,7 @@ try
                 }
             }
 
-            Context 'When the specified path does not exist' {               
+            Context 'When the specified path does not exist' {
                 BeforeEach {
                     $mockTestPathResult = $false
                 }
@@ -384,7 +386,7 @@ try
                         $Ensure,
                         $ProcessOnlyOnActiveNode
                     )
-                    
+
                     $setTargetResourceParameters = @{
                         Path = $Path
                         Identity = $Identity
@@ -411,7 +413,7 @@ try
                     )
 
                     $mockTestPathResult = $false
-                    
+
                     $setTargetResourceParameters = @{
                         Path = $Path
                         Identity = $Identity
@@ -438,7 +440,7 @@ try
                         $Ensure,
                         $ProcessOnlyOnActiveNode
                     )
-                    
+
                     $setTargetResourceParameters = @{
                         Path = $Path
                         Identity = $Identity
@@ -465,7 +467,7 @@ try
                     )
 
                     $mockTestPathResult = $false
-                    
+
                     $setTargetResourceParameters = @{
                         Path = $Path
                         Identity = $Identity
@@ -490,7 +492,7 @@ try
                         $Ensure,
                         $ProcessOnlyOnActiveNode
                     )
-                    
+
                     $setTargetResourceParameters = @{
                         Path = $Path
                         Identity = $Identity
@@ -559,7 +561,7 @@ try
                     {
                         $testTargetResourceParameters.Add('Rights',$Rights)
                     }
-                    
+
                     Test-TargetResource @testTargetResourceParameters | Should -Be $TestResult
 
                     Assert-MockCalled -CommandName Get-Acl -Times $assertMockCalledGetAcl -Exactly -Scope It
@@ -605,7 +607,7 @@ try
                         Ensure = $Ensure
                         ProcessOnlyOnActiveNode = $ProcessOnlyOnActiveNode
                     }
-                    
+
                     Test-TargetResource @testTargetResourceParameters | Should -Be $TestResult
 
                     Assert-MockCalled -CommandName Get-Acl -Times $assertMockCalledGetAcl -Exactly -Scope It
@@ -647,7 +649,7 @@ try
                         Ensure = $Ensure
                         ProcessOnlyOnActiveNode = $ProcessOnlyOnActiveNode
                     }
-                    
+
                     { Test-TargetResource @testTargetResourceParameters } | Should -Throw "No rights were specified for '$Identity' on '$Path'"
 
                     Assert-MockCalled -CommandName Get-Acl -Times $assertMockCalledGetAcl -Exactly -Scope It
@@ -657,7 +659,6 @@ try
                     Assert-MockCalled -CommandName Get-CimInstance -Times $assertMockCalledGetCimInstance -Exactly -Scope It -ParameterFilter { $ClassName -eq 'MSCluster_ClusterDiskPartition' }
                     Assert-MockCalled -CommandName Test-Path -Times 1 -Exactly -Scope It
                 }
-
             }
         }
 
@@ -671,7 +672,7 @@ try
                     $result = Get-AclAccess -Path $mockPath
 
                     $result.Access[0].IdentityReference | Should -Be $mockIdentity
-                    $result.Access[0].FileSystemRights | Should -Be $mockRights
+                    $result.Access[0].FileSystemRights | Should -Be $mockRightsResult
 
                     Assert-MockCalled -CommandName Get-Item -Times 1 -Exactly -Scope It
                 }
@@ -683,3 +684,4 @@ finally
 {
     Invoke-TestCleanup
 }
+

@@ -48,6 +48,8 @@ Please refer to [this article](http://technet.microsoft.com/en-us/library/dd8832
 * Update appveyor.yml to use the default template.
 * Added default template files .codecov.yml, .gitattributes, and .gitignore, and
   .vscode folder.
+* Corrected xFileSystemAccessRule flag handling so that the DSC resources 'Test' passes correctly.
+* xFileSystemAccessRule Ensure: Absent with no rights specified will now correctly remove existing ACLs for the specified identity, rather than silently leaving them there.
 
 ### 1.4.0.0
 
