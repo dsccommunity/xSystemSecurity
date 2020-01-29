@@ -1,8 +1,8 @@
 # xSystemSecurity
 
-[![Build Status](https://dev.azure.com/dsccommunity/xSystemSecurity/_apis/build/status/dsccommunity.xSystemSecurity?branchName=master)](https://dev.azure.com/dsccommunity/xSystemSecurity/_build/latest?definitionId={definitionId}&branchName=master)
-![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/xSystemSecurity/{definitionId}/master)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/xSystemSecurity/{definitionId}/master)](https://dsccommunity.visualstudio.com/xSystemSecurity/_test/analytics?definitionId={definitionId}&contextType=build)
+[![Build Status](https://dev.azure.com/dsccommunity/xSystemSecurity/_apis/build/status/dsccommunity.xSystemSecurity?branchName=master)](https://dev.azure.com/dsccommunity/xSystemSecurity/_build/latest?definitionId=17&branchName=master)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/xSystemSecurity/17/master)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/xSystemSecurity/17/master)](https://dsccommunity.visualstudio.com/xSystemSecurity/_test/analytics?definitionId=17&contextType=build)
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/xSystemSecurity?label=xSystemSecurity%20Preview)](https://www.powershellgallery.com/packages/xSystemSecurity/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/xSystemSecurity?label=xSystemSecurity)](https://www.powershellgallery.com/packages/xSystemSecurity/)
 

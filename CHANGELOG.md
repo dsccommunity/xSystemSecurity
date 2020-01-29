@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- xSystemSecurity
+  - Fixed the correct URL on status badges.
 - xFileSystemAccessRule
   - Corrected flag handling so that the `Test-TargetResource` passes
     correctly.
