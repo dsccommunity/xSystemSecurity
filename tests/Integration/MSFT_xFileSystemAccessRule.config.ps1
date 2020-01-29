@@ -20,9 +20,27 @@ else
                 #>
                 Path            = ''
 
+                # Local group temporarily created for testing.
+                LocalGroupName  = 'FSAR_Test'
+
                 CertificateFile = $env:DscPublicCertificatePath
             }
         )
+    }
+}
+
+configuration MSFT_xFileSystemAccessRule_Prerequisites_Config
+{
+    Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
+
+    node localhost
+    {
+        Group 'AddLocalGroup'
+        {
+            Ensure      = 'Present'
+            GroupName   = $Node.LocalGroupName
+            Description = 'Group for MSFT_xFileSystemAccessRule tests'
+        }
     }
 }
 
@@ -67,6 +85,21 @@ configuration MSFT_xFileSystemAccessRule_RemoveRule_Config
             Path     = $Node.Path
             Identity = 'NT AUTHORITY\NETWORK SERVICE'
             Ensure   = 'Absent'
+        }
+    }
+}
+
+configuration MSFT_xFileSystemAccessRule_Cleanup_Config
+{
+    Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
+
+    node localhost
+    {
+        Group 'AddLocalGroup'
+        {
+            Ensure      = 'Absent'
+            GroupName   = $Node.LocalGroupName
+            Description = 'Group for MSFT_xFileSystemAccessRule tests'
         }
     }
 }
