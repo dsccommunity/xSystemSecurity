@@ -1,5 +1,279 @@
-$script:DSCModuleName = 'xSystemSecurity'
-$script:DSCResourceName = 'MSFT_xFileSystemAccessRule'
+$script:dscModuleName = 'xSystemSecurity'
+$script:dscResourceFriendlyName = 'xFileSystemAccessRule'
+$script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)"
+
+try
+{
+    Import-Module -Name DscResource.Test -Force -ErrorAction 'Stop'
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+}
+
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
+
+function Wait-ForIdleLcm
+{
+    [CmdletBinding()]
+    param ()
+
+    while ((Get-DscLocalConfigurationManager).LCMState -ne 'Idle')
+    {
+        Write-Verbose -Message 'Waiting for the LCM to become idle'
+
+        Start-Sleep -Seconds 2
+    }
+}
+
+try
+{
+    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
+    . $configFile
+
+    Describe "$($script:dscResourceName)_Integration" {
+        BeforeAll {
+            $resourceId = "[$($script:dscResourceFriendlyName)]Integration_Test"
+
+            $mockFolderPath1 = "$TestDrive\SampleFolder"
+            $mockFolderPath2 = "$TestDrive\xFSAR_TestFolder"
+
+            New-Item -Path $mockFolderPath1 -ItemType 'Directory' -Force
+            New-Item -Path $mockFolderPath2 -ItemType 'Directory' -Force
+        }
+
+        $configurationName = "$($script:dscResourceName)_Prerequisites_Config"
+
+        Context ('When using configuration {0}' -f $configurationName) {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    $configurationParameters = @{
+                        OutputPath           = $TestDrive
+                        # The variable $ConfigurationData was dot-sourced above.
+                        ConfigurationData    = $ConfigurationData
+                    }
+
+                    & $configurationName @configurationParameters
+
+                    $startDscConfigurationParameters = @{
+                        Path         = $TestDrive
+                        ComputerName = 'localhost'
+                        Wait         = $true
+                        Verbose      = $true
+                        Force        = $true
+                        ErrorAction  = 'Stop'
+                    }
+
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+        }
+
+        Wait-ForIdleLcm
+
+        $configurationName = "$($script:dscResourceName)_NewRule_Config"
+
+        Context ('When using configuration {0}' -f $configurationName) {
+            BeforeAll {
+                # The variable $ConfigurationData was dot-sourced above.
+                $ConfigurationData.AllNodes[0]['Path'] = $mockFolderPath1
+            }
+
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    $configurationParameters = @{
+                        OutputPath           = $TestDrive
+                        ConfigurationData    = $ConfigurationData
+                    }
+
+                    & $configurationName @configurationParameters
+
+                    $startDscConfigurationParameters = @{
+                        Path         = $TestDrive
+                        ComputerName = 'localhost'
+                        Wait         = $true
+                        Verbose      = $true
+                        Force        = $true
+                        ErrorAction  = 'Stop'
+                    }
+
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                {
+                    $script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop
+                } | Should -Not -Throw
+            }
+
+            It 'Should have set the resource and all the parameters should match' {
+                $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
+                    $_.ConfigurationName -eq $configurationName `
+                    -and $_.ResourceId -eq $resourceId
+                }
+
+                $resourceCurrentState.Ensure | Should -Be 'Present'
+                $resourceCurrentState.Path | Should -Be $ConfigurationData.AllNodes.Path
+                $resourceCurrentState.Identity | Should -Contain 'NT AUTHORITY\NETWORK SERVICE'
+                $resourceCurrentState.Rights | Should -Contain 'Read'
+                $resourceCurrentState.Rights | Should -Contain 'Synchronize'
+                $resourceCurrentState.IsActiveNode | Should -BeTrue
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should -Be 'True'
+            }
+        }
+
+        Wait-ForIdleLcm
+
+        $configurationName = "$($script:dscResourceName)_UpdateRule_Config"
+
+        Context ('When using configuration {0}' -f $configurationName) {
+            BeforeAll {
+                # The variable $ConfigurationData was dot-sourced above.
+                $ConfigurationData.AllNodes[0]['Path'] = $mockFolderPath1
+            }
+
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    $configurationParameters = @{
+                        OutputPath           = $TestDrive
+                        ConfigurationData    = $ConfigurationData
+                    }
+
+                    & $configurationName @configurationParameters
+
+                    $startDscConfigurationParameters = @{
+                        Path         = $TestDrive
+                        ComputerName = 'localhost'
+                        Wait         = $true
+                        Verbose      = $true
+                        Force        = $true
+                        ErrorAction  = 'Stop'
+                    }
+
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                {
+                    $script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop
+                } | Should -Not -Throw
+            }
+
+            It 'Should have set the resource and all the parameters should match' {
+                $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
+                    $_.ConfigurationName -eq $configurationName `
+                    -and $_.ResourceId -eq $resourceId
+                }
+
+                $resourceCurrentState.Ensure | Should -Be 'Present'
+                $resourceCurrentState.Path  | Should -Be $ConfigurationData.AllNodes.Path
+                $resourceCurrentState.Identity | Should -Contain 'NT AUTHORITY\NETWORK SERVICE'
+                $resourceCurrentState.Rights | Should -Contain 'FullControl'
+                $resourceCurrentState.IsActiveNode  | Should -BeTrue
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should -Be 'True'
+            }
+        }
+
+        Wait-ForIdleLcm
+
+        $configurationName = "$($script:dscResourceName)_RemoveRule_Config"
+
+        Context ('When using configuration {0}' -f $configurationName) {
+            BeforeAll {
+                # The variable $ConfigurationData was dot-sourced above.
+                $ConfigurationData.AllNodes[0]['Path'] = $mockFolderPath1
+            }
+
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    $configurationParameters = @{
+                        OutputPath           = $TestDrive
+                        ConfigurationData    = $ConfigurationData
+                    }
+
+                    & $configurationName @configurationParameters
+
+                    $startDscConfigurationParameters = @{
+                        Path         = $TestDrive
+                        ComputerName = 'localhost'
+                        Wait         = $true
+                        Verbose      = $true
+                        Force        = $true
+                        ErrorAction  = 'Stop'
+                    }
+
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                {
+                    $script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop
+                } | Should -Not -Throw
+            }
+
+            It 'Should have set the resource and all the parameters should match' {
+                $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
+                    $_.ConfigurationName -eq $configurationName `
+                    -and $_.ResourceId -eq $resourceId
+                }
+
+                $resourceCurrentState.Ensure | Should -Be 'Absent'
+                $resourceCurrentState.Path  | Should -Be $ConfigurationData.AllNodes.Path
+                $resourceCurrentState.Identity | Should -Contain 'NT AUTHORITY\NETWORK SERVICE'
+                $resourceCurrentState.Rights | Should -BeNullOrEmpty
+                $resourceCurrentState.IsActiveNode  | Should -BeTrue
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should -Be 'True'
+            }
+        }
+
+        $configurationName = "$($script:dscResourceName)_Cleanup_Config"
+
+        Context ('When using configuration {0}' -f $configurationName) {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    $configurationParameters = @{
+                        OutputPath           = $TestDrive
+                        # The variable $ConfigurationData was dot-sourced above.
+                        ConfigurationData    = $ConfigurationData
+                    }
+
+                    & $configurationName @configurationParameters
+
+                    $startDscConfigurationParameters = @{
+                        Path         = $TestDrive
+                        ComputerName = 'localhost'
+                        Wait         = $true
+                        Verbose      = $true
+                        Force        = $true
+                        ErrorAction  = 'Stop'
+                    }
+
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+        }
+    }
+}
+finally
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
 # Basic integration tests setup
 try
@@ -36,7 +310,7 @@ try
     }
     #endregion SETUP
 
-    Import-Module "$PSScriptRoot\..\..\DSCResources\MSFT_xFileSystemAccessRule\MSFT_xFileSystemAccessRule.psm1"
+    Import-Module "$PSScriptRoot\..\..\source\DSCResources\MSFT_xFileSystemAccessRule\MSFT_xFileSystemAccessRule.psm1"
     Describe "MSFT_xFileSystemAccessRule Functional unit tests" {
         Context "Test-TargetResource when ACL is absent" {
             BeforeAll {
@@ -47,6 +321,7 @@ try
                 # Shouldn't throw when run twice, not necessary for DSC but just verifying my test setup is safe
                 Set-TargetResource -Verbose -Path "$testRoot" -Identity $testIdentity -Rights @() -Ensure Absent
             }
+
             $absentAclTestCases = @(
                 @{
                     Rights         = @()
@@ -85,6 +360,7 @@ try
                     Explanation    = "Permissions should have been removed"
                 }
             )
+
             It 'Returns <ExpectedResult> for Ensure <Ensure> and Rights <Rights> with no existing rights' -TestCases $absentAclTestCases {
                 Param(
                     $Ensure,
@@ -340,85 +616,4 @@ finally
     {
         Get-LocalGroup $testIdentity -ErrorAction 'SilentlyContinue' | Remove-LocalGroup -ErrorAction 'Stop'
     }
-}
-
-
-[String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
-{
-    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
-}
-
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-$initializeTestEnvironmentSplat = @{
-    DscResourceName = $script:DSCResourceName
-    TestType = 'Integration'
-    DscModuleName = $script:DSCModuleName
-}
-$TestEnvironment = Initialize-TestEnvironment @initializeTestEnvironmentSplat
-
-New-Item -Path "$env:SystemDrive\SampleFolder" -ItemType Directory
-try
-{
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
-    . $ConfigFile
-
-    Describe "$($script:DSCResourceName)_Integration" {
-
-        It 'New rule - Should compile without throwing' {
-            Invoke-Expression -Command "$($script:DSCResourceName)_NewRule -OutputPath `$TestDrive"
-        }
-
-        It "New rule - Should apply without throwing" {
-            Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force -ErrorAction 'Stop'
-        }
-
-        It 'New rule - Should be able to call Get-DscConfiguration without throwing' {
-            Get-DscConfiguration -Verbose -ErrorAction Stop
-        }
-
-        It 'New rule - Should have set the resource and all the parameters should match' {
-            Test-DscConfiguration -Path $TestDrive -ErrorAction 'Stop' | Should Be $true
-        }
-
-
-        It 'Update rule - Should compile without throwing' {
-            Invoke-Expression -Command "$($script:DSCResourceName)_UpdateRule -OutputPath `$TestDrive" -ErrorAction 'Stop'
-        }
-
-        It "Update rule - Should apply without throwing" {
-            Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force -ErrorAction 'Stop'
-        }
-
-
-        It 'Update rule - Should be able to call Get-DscConfiguration without throwing' {
-            Get-DscConfiguration -Verbose -ErrorAction Stop
-        }
-
-        It 'Remove rule - Should have set the resource and all the parameters should match' {
-            Test-DscConfiguration -Path $TestDrive -ErrorAction 'Stop' | Should Be $true
-        }
-
-        It 'Remove rule - Should compile without throwing' {
-            Invoke-Expression -Command "$($script:DSCResourceName)_RemoveRule -OutputPath `$TestDrive" -ErrorAction 'Stop'
-        }
-
-        It "Remove rule - Should apply without throwing" {
-            Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force -ErrorAction 'Stop'
-        }
-
-        It 'Remove rule - Should be able to call Get-DscConfiguration without throwing' {
-            Get-DscConfiguration -Verbose -ErrorAction Stop
-        }
-
-        It 'New rule - Should have set the resource and all the parameters should match' {
-            Test-DscConfiguration -Path $TestDrive -ErrorAction 'Stop' | Should Be $true
-        }
-    }
-}
-finally
-{
-    Remove-Item -Path "$env:SystemDrive\SampleFolder" -Recurse -Force -Confirm:$false -ErrorAction 'SilentlyContinue'
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
 }
