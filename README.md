@@ -1,4 +1,15 @@
-# xSystemSecurity
+# **THIS MODULE HAS BEEN DEPRECATED**
+
+It will no longer be released. Please use the following modules instead:
+
+- The resource `xIEEsc` have been replaced by `IEEnhancedSecurityConfiguration`
+  in the module [ComputerManagementDsc](https://github.com/dsccommunity/ComputerManagementDsc).
+- The resource `xUac` have been replaced by `UserAccountControl`
+  in the module [ComputerManagementDsc](https://github.com/dsccommunity/ComputerManagementDsc).
+- The resource `xFileSystemAccessRule` have been replaced by `FileSystemAccessRule`
+  in the module [FileSystemDsc](https://github.com/dsccommunity/FileSystemDsc).
+
+## xSystemSecurity
 
 [![Build Status](https://dev.azure.com/dsccommunity/xSystemSecurity/_apis/build/status/dsccommunity.xSystemSecurity?branchName=master)](https://dev.azure.com/dsccommunity/xSystemSecurity/_build/latest?definitionId=17&branchName=master)
 ![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/xSystemSecurity/17/master)

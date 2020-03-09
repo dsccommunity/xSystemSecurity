@@ -5,6 +5,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+
+- **THIS MODULE HAS BEEN DEPRECATED**. It will no longer be released. Please use
+  the following modules instead:
+  - The resource `xIEEsc` have been replaced by `IEEnhancedSecurityConfiguration`
+    in the module [ComputerManagementDsc](https://github.com/dsccommunity/ComputerManagementDsc).
+  - The resource `xUac` have been replaced by `UserAccountControl`
+    in the module [ComputerManagementDsc](https://github.com/dsccommunity/ComputerManagementDsc).
+  - The resource `xFileSystemAccessRule` have been replaced by `FileSystemAccessRule`
+    in the module [FileSystemDsc](https://github.com/dsccommunity/FileSystemDsc).
+
+### Fixed
+
+- Fixes issue with importing composite resources ([issue #34](https://github.com/dsccommunity/xSystemSecurity/issues/34)).
+
 ## [1.5.0] - 2020-01-29
 
 ### Added

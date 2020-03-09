@@ -18,7 +18,7 @@
     Copyright         = 'Copyright the DSC Community contributors. All rights reserved.'
 
     # Functions to export from this module
-    FunctionsToExport = @()
+    FunctionsToExport = @('xUAC')
 
     # Cmdlets to export from this module
     CmdletsToExport   = @()
