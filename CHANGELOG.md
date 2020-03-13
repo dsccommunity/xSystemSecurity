@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1] - 2020-03-13
+
 ### Deprecated
 
 - **THIS MODULE HAS BEEN DEPRECATED**. It will no longer be released. Please use
