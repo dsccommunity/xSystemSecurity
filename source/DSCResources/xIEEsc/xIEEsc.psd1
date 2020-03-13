@@ -21,7 +21,7 @@
     Description       = 'Enables or Disables IE Enhanced Security Configuration'
 
     # Functions to export from this module
-    FunctionsToExport = @()
+    FunctionsToExport = @('xIEESc')
 
     # Cmdlets to export from this module
     CmdletsToExport   = @()
