@@ -97,7 +97,7 @@ Please check out common DSC Community [contributing guidelines](https://dsccommu
     restart the computer to complete the process of turning off UAC. Once UAC is
     off, people that log on as administrator will always have the permissions of
     an administrator. This is the least secure setting same as "NeverNotify", but
-    in addition EnableLUA registry key is disabled. EnableLUA controls the behavior
+    also EnableLUA registry key is disabled. EnableLUA controls the behavior
     of all UAC policy settings for the computer. If you change this policy setting,
     you must restart your computer. We do not recommend using this setting, but it
     can be selected for systems that use programs that are not certified for
